@@ -21,6 +21,7 @@ type SignaturePlacement = {
   heightNorm: number;
   source: SignatureSource;
   text?: string;
+  sizeScale: number;
 };
 
 type TextPlacement = {
@@ -53,6 +54,9 @@ const createTodayString = () => {
   return `${year}-${month}-${day}`;
 };
 
+const clamp01 = (value: number) =>
+  value < 0 ? 0 : value > 1 ? 1 : value;
+
 const buildTrimmedSignatureDataUrl = (canvas: HTMLCanvasElement) => {
   const context = canvas.getContext("2d");
   if (!context) {
@@ -73,15 +77,9 @@ const buildTrimmedSignatureDataUrl = (canvas: HTMLCanvasElement) => {
   for (let y = 0; y < height; y += 1) {
     for (let x = 0; x < width; x += 1) {
       const index = (y * width + x) * 4;
-      const r = data[index];
-      const g = data[index + 1];
-      const b = data[index + 2];
       const a = data[index + 3];
 
-      const isTransparent = a === 0;
-      const isWhite = r > 250 && g > 250 && b > 250;
-
-      if (!isTransparent && !isWhite) {
+      if (a > 0) {
         hasInk = true;
         if (x < minX) {
           minX = x;
@@ -157,6 +155,12 @@ export default function PdfSignatureEditor() {
   const lastPointRef = useRef<{ x: number; y: number } | null>(null);
   const [drawnSignaturePreviewUrl, setDrawnSignaturePreviewUrl] =
     useState<string | null>(null);
+  const [dragState, setDragState] = useState<{
+    id: string;
+    pointerId: number;
+    offsetXNorm: number;
+    offsetYNorm: number;
+  } | null>(null);
 
   const previewCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const signatureCanvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -283,7 +287,9 @@ export default function PdfSignatureEditor() {
         pageIndex <= pdf.numPages ? pageIndex : pdf.numPages;
       const page = await pdf.getPage(clampedIndex);
 
-      const containerWidth = canvas.parentElement?.clientWidth ?? 600;
+      const containerElement =
+        canvas.parentElement?.parentElement ?? canvas.parentElement;
+      const containerWidth = containerElement?.clientWidth ?? 800;
       const viewport = page.getViewport({ scale: 1 });
       const scale = containerWidth / viewport.width;
       const scaledViewport = page.getViewport({ scale });
@@ -340,8 +346,7 @@ export default function PdfSignatureEditor() {
     if (!context) {
       return;
     }
-    context.fillStyle = "#ffffff";
-    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.clearRect(0, 0, canvas.width, canvas.height);
   }, []);
 
   const startDrawing = (event: React.PointerEvent<HTMLCanvasElement>) => {
@@ -396,7 +401,7 @@ export default function PdfSignatureEditor() {
       return;
     }
     if (hasDrawing) {
-      const url = canvas.toDataURL("image/png");
+      const url = buildTrimmedSignatureDataUrl(canvas);
       setDrawnSignaturePreviewUrl(url);
     }
   };
@@ -411,8 +416,6 @@ export default function PdfSignatureEditor() {
       return;
     }
     context.clearRect(0, 0, canvas.width, canvas.height);
-    context.fillStyle = "#ffffff";
-    context.fillRect(0, 0, canvas.width, canvas.height);
     setHasDrawing(false);
     setDrawnSignaturePreviewUrl(null);
     if (activeSignatureSource === "drawn") {
@@ -436,8 +439,8 @@ export default function PdfSignatureEditor() {
       return;
     }
 
-    const xNorm = x / rect.width;
-    const yNorm = y / rect.height;
+    const xNorm = clamp01(x / rect.width);
+    const yNorm = clamp01(y / rect.height);
 
     if (placementMode === "signature") {
       let resolvedSource: SignatureSource = activeSignatureSource;
@@ -461,7 +464,8 @@ export default function PdfSignatureEditor() {
           yNorm,
           widthNorm,
           heightNorm,
-          source: "drawn"
+          source: "drawn",
+          sizeScale: 1
         };
         setPlacements((previous) => [...previous, placement]);
       } else if (
@@ -479,7 +483,8 @@ export default function PdfSignatureEditor() {
           widthNorm,
           heightNorm,
           source: "typed",
-          text: typedSignature.trim()
+          text: typedSignature.trim(),
+          sizeScale: 1
         };
         setPlacements((previous) => [...previous, placement]);
       }
@@ -498,6 +503,70 @@ export default function PdfSignatureEditor() {
       };
       setPlacements((previous) => [...previous, placement]);
     }
+  };
+
+  const handlePlacementPointerDown = (
+    placement: PdfPlacement,
+    event: React.PointerEvent<HTMLDivElement>
+  ) => {
+    if (!previewCanvasRef.current) {
+      return;
+    }
+    const rect = previewCanvasRef.current.getBoundingClientRect();
+    const pointerXNorm = clamp01(
+      (event.clientX - rect.left) / rect.width
+    );
+    const pointerYNorm = clamp01(
+      (event.clientY - rect.top) / rect.height
+    );
+    setDragState({
+      id: placement.id,
+      pointerId: event.pointerId,
+      offsetXNorm: placement.xNorm - pointerXNorm,
+      offsetYNorm: placement.yNorm - pointerYNorm
+    });
+    (event.currentTarget as HTMLDivElement).setPointerCapture(
+      event.pointerId
+    );
+  };
+
+  const handlePlacementPointerMove = (
+    event: React.PointerEvent<HTMLDivElement>
+  ) => {
+    if (!dragState || event.pointerId !== dragState.pointerId) {
+      return;
+    }
+    if (!previewCanvasRef.current) {
+      return;
+    }
+    const rect = previewCanvasRef.current.getBoundingClientRect();
+    const pointerXNorm = clamp01(
+      (event.clientX - rect.left) / rect.width
+    );
+    const pointerYNorm = clamp01(
+      (event.clientY - rect.top) / rect.height
+    );
+    const nextX = clamp01(pointerXNorm + dragState.offsetXNorm);
+    const nextY = clamp01(pointerYNorm + dragState.offsetYNorm);
+    setPlacements((previous) =>
+      previous.map((placement) =>
+        placement.id === dragState.id
+          ? { ...placement, xNorm: nextX, yNorm: nextY }
+          : placement
+      )
+    );
+  };
+
+  const handlePlacementPointerUp = (
+    event: React.PointerEvent<HTMLDivElement>
+  ) => {
+    if (!dragState || event.pointerId !== dragState.pointerId) {
+      return;
+    }
+    (event.currentTarget as HTMLDivElement).releasePointerCapture(
+      event.pointerId
+    );
+    setDragState(null);
   };
 
   const handleRemovePlacement = (id: string) => {
@@ -525,10 +594,8 @@ export default function PdfSignatureEditor() {
           placement.type === "signature" && placement.source === "drawn"
       );
 
-      if (hasDrawnSignaturePlacement && signatureCanvasRef.current) {
-        const canvas = signatureCanvasRef.current;
-        const dataUrl = canvas.toDataURL("image/png");
-        const response = await fetch(dataUrl);
+      if (hasDrawnSignaturePlacement && drawnSignaturePreviewUrl) {
+        const response = await fetch(drawnSignaturePreviewUrl);
         const pngBytes = await response.arrayBuffer();
         drawnSignatureImage = await pdfDoc.embedPng(pngBytes);
       }
@@ -548,8 +615,10 @@ export default function PdfSignatureEditor() {
 
         if (placement.type === "signature") {
           if (placement.source === "drawn" && drawnSignatureImage) {
-            const drawWidth = placement.widthNorm * width;
-            const drawHeight = placement.heightNorm * height;
+            const drawWidth =
+              placement.widthNorm * placement.sizeScale * width;
+            const drawHeight =
+              placement.heightNorm * placement.sizeScale * height;
             const drawX = x - drawWidth / 2;
             const drawY = y - drawHeight / 2;
             page.drawImage(drawnSignatureImage, {
@@ -659,10 +728,10 @@ export default function PdfSignatureEditor() {
           )}
         </div>
       </section>
-      <section className="grid gap-4 lg:grid-cols-[minmax(0,260px)_minmax(0,1.5fr)_minmax(0,260px)]">
+      <section className="grid gap-4 md:grid-cols-2">
         <div
           aria-label="Placement tools"
-          className="space-y-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
+          className="space-y-3 rounded-lg border border-slate-200 bg-white p-3 shadow-sm"
         >
           <div className="space-y-2">
             <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-700">
@@ -806,6 +875,14 @@ export default function PdfSignatureEditor() {
                           ? "italic tracking-wide"
                           : "font-medium"
                       }`}
+                      style={
+                        typedSignatureStyle === "script"
+                          ? {
+                              fontFamily:
+                                '"Brush Script MT","Segoe Script","Snell Roundhand",cursive'
+                            }
+                          : undefined
+                      }
                     >
                       {typedSignature.trim().length === 0
                         ? "Type your name above"
@@ -883,157 +960,8 @@ export default function PdfSignatureEditor() {
           )}
         </div>
         <div
-          aria-label="PDF preview"
-          className="space-y-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
-        >
-          <div className="flex items-center justify-between gap-2">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-700">
-              Preview
-            </h2>
-            <div className="flex items-center gap-2 text-xs text-slate-700">
-              {typeof pageCount === "number" && pageCount > 0 ? (
-                <>
-                  <span>Page</span>
-                  <div className="relative">
-                    <select
-                      value={selectedPageIndex}
-                      onChange={(event) =>
-                        setSelectedPageIndex(
-                          Number.parseInt(event.target.value, 10)
-                        )
-                      }
-                      className={selectBaseClasses}
-                    >
-                      {Array.from({ length: pageCount }).map((_, index) => (
-                        <option key={index} value={index}>
-                          {index + 1}
-                        </option>
-                      ))}
-                    </select>
-                    <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                      <svg
-                        className="h-4 w-4 text-slate-400"
-                        viewBox="0 0 20 20"
-                        fill="none"
-                        aria-hidden="true"
-                      >
-                        <path
-                          d="M6 8l4 4 4-4"
-                          stroke="currentColor"
-                          strokeWidth="1.5"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    </span>
-                  </div>
-                  <span>of {pageCount}</span>
-                </>
-              ) : (
-                <span>No PDF loaded yet</span>
-              )}
-            </div>
-          </div>
-          <div className="relative flex min-h-[480px] items-center justify-center overflow-auto rounded-md border border-slate-200 bg-slate-50 p-2">
-            {renderError ? (
-              <p className="text-xs text-red-600">{renderError}</p>
-            ) : !pdfBytes ? (
-              <p className="text-sm text-slate-600">
-                Upload a PDF above to see a preview and place signatures or text.
-              </p>
-            ) : isOverPageLimit ? (
-              <p className="text-sm text-slate-600">
-                This PDF has more than {MAX_SUPPORTED_PAGES} pages. Split it into smaller
-                parts before editing.
-              </p>
-            ) : (
-              <div className="flex h-[80vh] w-full items-center justify-center">
-                <div className="relative inline-block">
-                  <canvas
-                    ref={previewCanvasRef}
-                    className="block max-h-[80vh] rounded-md bg-white shadow-sm"
-                    onClick={handlePreviewClick}
-                  />
-                  {viewportSize &&
-                    placementsForSelectedPage.map((placement) => {
-                      const leftPercent = placement.xNorm * 100;
-                      const topPercent = placement.yNorm * 100;
-                      if (placement.type === "signature") {
-                        const widthPercent =
-                          placement.widthNorm * 100;
-                        const heightPercent =
-                          placement.heightNorm * 100;
-                        const backgroundImage =
-                          placement.source === "drawn" &&
-                          drawnSignaturePreviewUrl
-                            ? `url(${drawnSignaturePreviewUrl})`
-                            : undefined;
-                        return (
-                          <div
-                            key={placement.id}
-                            className="absolute border border-emerald-400/70 bg-emerald-50/40"
-                            style={{
-                              left: `${leftPercent}%`,
-                              top: `${topPercent}%`,
-                              width: `${widthPercent}%`,
-                              height: `${heightPercent}%`,
-                              transform: "translate(-50%, -50%)",
-                              backgroundImage,
-                              backgroundRepeat: "no-repeat",
-                              backgroundSize: "contain",
-                              backgroundPosition: "center"
-                            }}
-                          >
-                            {placement.source === "typed" &&
-                              placement.text && (
-                                <span
-                                  className={`pointer-events-none block w-full text-center text-[11px] text-slate-900 ${
-                                    typedSignatureStyle === "script"
-                                      ? "italic tracking-wide"
-                                      : "font-medium"
-                                  }`}
-                                >
-                                  {placement.text}
-                                </span>
-                              )}
-                          </div>
-                        );
-                      }
-                      const approxWidthPercent =
-                        Math.max(
-                          8,
-                          Math.min(
-                            40,
-                            (placement.text.length / 20) * 20
-                          )
-                        );
-                      const heightPx = placement.fontSize * 1.6;
-                      return (
-                        <div
-                          key={placement.id}
-                          className="absolute rounded border border-sky-400/70 bg-sky-50/60 px-1 text-[10px]"
-                          style={{
-                            left: `${leftPercent}%`,
-                            top: `${topPercent}%`,
-                            transform: "translate(-50%, -50%)",
-                            minWidth: "40px",
-                            maxWidth: "160px",
-                            width: `${approxWidthPercent}%`,
-                            height: `${heightPx}px`
-                          }}
-                        >
-                          {placement.text}
-                        </div>
-                      );
-                    })}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-        <div
           aria-label="Placements and actions"
-          className="space-y-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
+          className="space-y-3 rounded-lg border border-slate-200 bg-white p-3 shadow-sm"
         >
           <div className="space-y-2">
             <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-700">
@@ -1077,6 +1005,34 @@ export default function PdfSignatureEditor() {
                       </p>
                     )}
                   </div>
+                  {placement.type === "signature" && (
+                    <div className="mt-1 flex items-center gap-2 text-[11px] text-slate-700">
+                      <span>Size</span>
+                      <input
+                        type="range"
+                        min={0.5}
+                        max={2}
+                        step={0.1}
+                        value={placement.sizeScale}
+                        onChange={(event) => {
+                          const scale = Number.parseFloat(
+                            event.target.value
+                          );
+                          setPlacements((previous) =>
+                            previous.map((item) =>
+                              item.id === placement.id
+                                ? { ...item, sizeScale: scale }
+                                : item
+                            )
+                          );
+                        }}
+                        className="h-1 flex-1 cursor-pointer accent-emerald-600"
+                      />
+                      <span className="w-10 text-right">
+                        {Math.round(placement.sizeScale * 100)}%
+                      </span>
+                    </div>
+                  )}
                   <button
                     type="button"
                     onClick={() => handleRemovePlacement(placement.id)}
@@ -1106,6 +1062,171 @@ export default function PdfSignatureEditor() {
               name. Keep a copy of your original file if you may need to revert later.
             </p>
           </div>
+        </div>
+      </section>
+      <section
+        aria-label="PDF preview"
+        className="space-y-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
+      >
+        <div className="flex items-center justify-between gap-2">
+          <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-700">
+            Preview
+          </h2>
+          <div className="flex items-center gap-2 text-xs text-slate-700">
+            {typeof pageCount === "number" && pageCount > 0 ? (
+              <>
+                <span>Page</span>
+                <div className="relative">
+                  <select
+                    value={selectedPageIndex}
+                    onChange={(event) =>
+                      setSelectedPageIndex(
+                        Number.parseInt(event.target.value, 10)
+                      )
+                    }
+                    className={selectBaseClasses}
+                  >
+                    {Array.from({ length: pageCount }).map((_, index) => (
+                      <option key={index} value={index}>
+                        {index + 1}
+                      </option>
+                    ))}
+                  </select>
+                  <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                    <svg
+                      className="h-4 w-4 text-slate-400"
+                      viewBox="0 0 20 20"
+                      fill="none"
+                      aria-hidden="true"
+                    >
+                      <path
+                        d="M6 8l4 4 4-4"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </span>
+                </div>
+                <span>of {pageCount}</span>
+              </>
+            ) : (
+              <span>No PDF loaded yet</span>
+            )}
+          </div>
+        </div>
+        <div className="relative flex min-h-[480px] items-center justify-center overflow-auto rounded-md border border-slate-200 bg-slate-50 p-2">
+          {renderError ? (
+            <p className="text-xs text-red-600">{renderError}</p>
+          ) : !pdfBytes ? (
+            <p className="text-sm text-slate-600">
+              Upload a PDF above to see a preview and place signatures or text.
+            </p>
+          ) : isOverPageLimit ? (
+            <p className="text-sm text-slate-600">
+              This PDF has more than {MAX_SUPPORTED_PAGES} pages. Split it into smaller
+              parts before editing.
+            </p>
+          ) : (
+            <div className="flex h-[80vh] w-full items-center justify-center">
+              <div className="relative inline-block">
+                <canvas
+                  ref={previewCanvasRef}
+                  className="block max-h-[80vh] rounded-md bg-white shadow-sm"
+                  onClick={handlePreviewClick}
+                />
+                {viewportSize &&
+                  placementsForSelectedPage.map((placement) => {
+                    const leftPercent = placement.xNorm * 100;
+                    const topPercent = placement.yNorm * 100;
+                    if (placement.type === "signature") {
+                      const widthPercent = placement.widthNorm * 100;
+                      const heightPercent = placement.heightNorm * 100;
+                      const backgroundImage =
+                        placement.source === "drawn" &&
+                        drawnSignaturePreviewUrl
+                          ? `url(${drawnSignaturePreviewUrl})`
+                          : undefined;
+                      return (
+                        <div
+                          key={placement.id}
+                          className="absolute border border-emerald-400/70"
+                          style={{
+                            left: `${leftPercent}%`,
+                            top: `${topPercent}%`,
+                            width: `${widthPercent * placement.sizeScale}%`,
+                            height: `${heightPercent * placement.sizeScale}%`,
+                            transform: "translate(-50%, -50%)",
+                            backgroundImage,
+                            backgroundRepeat: "no-repeat",
+                            backgroundSize: "contain",
+                            backgroundPosition: "center",
+                            backgroundColor: "transparent"
+                          }}
+                          onPointerDown={(event) =>
+                            handlePlacementPointerDown(placement, event)
+                          }
+                          onPointerMove={handlePlacementPointerMove}
+                          onPointerUp={handlePlacementPointerUp}
+                        >
+                          {placement.source === "typed" &&
+                            placement.text && (
+                              <span
+                                className={`pointer-events-none block w-full text-center text-[11px] text-slate-900 ${
+                                  typedSignatureStyle === "script"
+                                    ? "italic tracking-wide"
+                                    : "font-medium"
+                                }`}
+                                style={
+                                  typedSignatureStyle === "script"
+                                    ? {
+                                        fontFamily:
+                                          '"Brush Script MT","Segoe Script","Snell Roundhand",cursive'
+                                      }
+                                    : undefined
+                                }
+                              >
+                                {placement.text}
+                              </span>
+                            )}
+                        </div>
+                      );
+                    }
+                    const approxWidthPercent = Math.max(
+                      8,
+                      Math.min(
+                        40,
+                        (placement.text.length / 20) * 20
+                      )
+                    );
+                    const heightPx = placement.fontSize * 1.6;
+                    return (
+                      <div
+                        key={placement.id}
+                        className="absolute rounded border border-sky-400/70 bg-sky-50/60 px-1 text-[10px]"
+                        style={{
+                          left: `${leftPercent}%`,
+                          top: `${topPercent}%`,
+                          transform: "translate(-50%, -50%)",
+                          minWidth: "40px",
+                          maxWidth: "160px",
+                          width: `${approxWidthPercent}%`,
+                          height: `${heightPx}px`
+                        }}
+                        onPointerDown={(event) =>
+                          handlePlacementPointerDown(placement, event)
+                        }
+                        onPointerMove={handlePlacementPointerMove}
+                        onPointerUp={handlePlacementPointerUp}
+                      >
+                        {placement.text}
+                      </div>
+                    );
+                  })}
+              </div>
+            </div>
+          )}
         </div>
       </section>
     </div>
