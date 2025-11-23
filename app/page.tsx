@@ -29,7 +29,7 @@ export default function HomePage() {
       </section>
       <section aria-label="Available tools" className="space-y-4">
         <h2 className="text-lg font-semibold text-slate-900">Browse tools</h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Link
             href="/hourly-salary-tax-calculator"
             className="group flex flex-col justify-between rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition hover:border-slate-300 hover:shadow-md"
@@ -85,6 +85,25 @@ export default function HomePage() {
             </div>
             <span className="mt-4 inline-flex items-center text-sm font-medium text-emerald-700">
               Open calculator
+              <span className="ml-1 text-xs transition group-hover:translate-x-0.5">
+                →
+              </span>
+            </span>
+          </Link>
+          <Link
+            href="/team-randomizer"
+            className="group flex flex-col justify-between rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition hover:border-slate-300 hover:shadow-md"
+          >
+            <div className="space-y-2">
+              <h3 className="text-base font-semibold text-slate-900">
+                Team Randomizer
+              </h3>
+              <p className="text-sm text-slate-700">
+                Split a class, roster, or group into fair random teams in seconds.
+              </p>
+            </div>
+            <span className="mt-4 inline-flex items-center text-sm font-medium text-emerald-700">
+              Open tool
               <span className="ml-1 text-xs transition group-hover:translate-x-0.5">
                 →
               </span>
