@@ -59,8 +59,8 @@ export default function HomePage() {
                 Random Meal Generator
               </h3>
               <p className="text-sm text-slate-700">
-                Filter by meal type, dietary preference, and calories, then let
-                the tool pick a concrete meal idea for you.
+                Stuck on what to eat? Get a random meal idea filtered by diet
+                and calories.
               </p>
             </div>
             <span className="mt-4 inline-flex items-center text-sm font-medium text-emerald-700">
