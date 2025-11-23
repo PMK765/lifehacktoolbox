@@ -60,7 +60,12 @@ const clamp01 = (value: number) =>
 const buildTrimmedSignatureDataUrl = (canvas: HTMLCanvasElement) => {
   const context = canvas.getContext("2d");
   if (!context) {
-    return canvas.toDataURL("image/png");
+    return {
+      url: canvas.toDataURL("image/png"),
+      aspectRatio: canvas.width > 0 && canvas.height > 0
+        ? canvas.width / canvas.height
+        : 3
+    };
   }
 
   const width = canvas.width;
@@ -98,7 +103,10 @@ const buildTrimmedSignatureDataUrl = (canvas: HTMLCanvasElement) => {
   }
 
   if (!hasInk) {
-    return canvas.toDataURL("image/png");
+    return {
+      url: canvas.toDataURL("image/png"),
+      aspectRatio: width > 0 && height > 0 ? width / height : 3
+    };
   }
 
   const padding = 4;
@@ -115,7 +123,10 @@ const buildTrimmedSignatureDataUrl = (canvas: HTMLCanvasElement) => {
   outCanvas.height = trimmedHeight;
   const outContext = outCanvas.getContext("2d");
   if (!outContext) {
-    return canvas.toDataURL("image/png");
+    return {
+      url: canvas.toDataURL("image/png"),
+      aspectRatio: width > 0 && height > 0 ? width / height : 3
+    };
   }
   outContext.putImageData(
     imageData,
@@ -123,7 +134,13 @@ const buildTrimmedSignatureDataUrl = (canvas: HTMLCanvasElement) => {
     -trimmedMinY
   );
 
-  return outCanvas.toDataURL("image/png");
+  return {
+    url: outCanvas.toDataURL("image/png"),
+    aspectRatio:
+      trimmedWidth > 0 && trimmedHeight > 0
+        ? trimmedWidth / trimmedHeight
+        : 3
+  };
 };
 
 export default function PdfSignatureEditor() {
@@ -155,6 +172,11 @@ export default function PdfSignatureEditor() {
   const lastPointRef = useRef<{ x: number; y: number } | null>(null);
   const [drawnSignaturePreviewUrl, setDrawnSignaturePreviewUrl] =
     useState<string | null>(null);
+  const [drawnSignatureAspectRatio, setDrawnSignatureAspectRatio] =
+    useState<number | null>(null);
+  const [signatureInputMode, setSignatureInputMode] = useState<
+    "draw" | "typed"
+  >("draw");
   const [dragState, setDragState] = useState<{
     id: string;
     pointerId: number;
@@ -401,8 +423,9 @@ export default function PdfSignatureEditor() {
       return;
     }
     if (hasDrawing) {
-      const url = buildTrimmedSignatureDataUrl(canvas);
-      setDrawnSignaturePreviewUrl(url);
+      const result = buildTrimmedSignatureDataUrl(canvas);
+      setDrawnSignaturePreviewUrl(result.url);
+      setDrawnSignatureAspectRatio(result.aspectRatio);
     }
   };
 
@@ -453,9 +476,12 @@ export default function PdfSignatureEditor() {
       }
 
       if (resolvedSource === "drawn" && hasDrawing) {
-        const widthNorm = 0.3;
-        const heightNorm =
-          (widthNorm * viewportSize.height) / viewportSize.width;
+        const aspect =
+          drawnSignatureAspectRatio && drawnSignatureAspectRatio > 0
+            ? drawnSignatureAspectRatio
+            : 3;
+        const widthNorm = 0.25;
+        const heightNorm = widthNorm / aspect;
         const placement: SignaturePlacement = {
           id: createId(),
           type: "signature",
@@ -615,10 +641,14 @@ export default function PdfSignatureEditor() {
 
         if (placement.type === "signature") {
           if (placement.source === "drawn" && drawnSignatureImage) {
+            const aspect =
+              drawnSignatureAspectRatio && drawnSignatureAspectRatio > 0
+                ? drawnSignatureAspectRatio
+                : drawnSignatureImage.width /
+                  drawnSignatureImage.height;
             const drawWidth =
               placement.widthNorm * placement.sizeScale * width;
-            const drawHeight =
-              placement.heightNorm * placement.sizeScale * height;
+            const drawHeight = drawWidth / aspect;
             const drawX = x - drawWidth / 2;
             const drawY = y - drawHeight / 2;
             page.drawImage(drawnSignatureImage, {
@@ -768,149 +798,180 @@ export default function PdfSignatureEditor() {
           </div>
           {placementMode === "signature" ? (
             <div className="space-y-3">
-              <div className="space-y-1">
-                <p className="text-xs font-medium text-slate-700">
-                  Drawn signature
-                </p>
-                <div className="rounded-md border border-slate-300 bg-slate-50 p-2">
-                  <canvas
-                    ref={signatureCanvasRef}
-                    width={400}
-                    height={140}
-                    className="h-28 w-full cursor-crosshair rounded border border-slate-300 bg-white"
-                    onPointerDown={startDrawing}
-                    onPointerMove={draw}
-                    onPointerUp={stopDrawing}
-                    onPointerLeave={stopDrawing}
-                  />
-                  <div className="mt-2 flex items-center justify-between gap-2 text-xs">
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setActiveSignatureSource(
-                            hasDrawing ? "drawn" : activeSignatureSource
-                          )
-                        }
-                        disabled={!hasDrawing}
-                        className={`rounded-md border px-2 py-1 text-xs font-medium transition ${
-                          activeSignatureSource === "drawn"
-                            ? "border-emerald-500 bg-emerald-50 text-emerald-900"
-                            : "border-slate-300 bg-white text-slate-800 hover:border-slate-400"
-                        } ${!hasDrawing ? "opacity-60" : ""}`}
-                      >
-                        Use drawn signature
-                      </button>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={clearSignature}
-                      className="rounded-md border border-slate-300 bg-white px-2 py-1 text-[11px] font-medium text-slate-700 shadow-sm transition hover:border-red-300 hover:text-red-700"
-                    >
-                      Clear
-                    </button>
-                  </div>
-                </div>
-              </div>
-              <div className="space-y-1">
-                <p className="text-xs font-medium text-slate-700">
-                  Typed signature
-                </p>
-                <input
-                  type="text"
-                  value={typedSignature}
-                  onChange={(event) =>
-                    setTypedSignature(event.target.value)
-                  }
-                  className={inputBaseClasses}
-                  placeholder="Type your name"
-                />
-                <div className="mt-1 grid grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] gap-2">
-                  <div className="space-y-1">
-                    <label
-                      htmlFor="typedStyle"
-                      className="text-[11px] font-medium text-slate-700"
-                    >
-                      Style
-                    </label>
-                    <div className="relative">
-                      <select
-                        id="typedStyle"
-                        value={typedSignatureStyle}
-                        onChange={(event) =>
-                          setTypedSignatureStyle(
-                            event.target.value as TypedSignatureStyle
-                          )
-                        }
-                        className={selectBaseClasses}
-                      >
-                        <option value="normal">Normal</option>
-                        <option value="script">Script-like</option>
-                      </select>
-                      <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                        <svg
-                          className="h-4 w-4 text-slate-400"
-                          viewBox="0 0 20 20"
-                          fill="none"
-                          aria-hidden="true"
-                        >
-                          <path
-                            d="M6 8l4 4 4-4"
-                            stroke="currentColor"
-                            strokeWidth="1.5"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                        </svg>
-                      </span>
-                    </div>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-[11px] font-medium text-slate-700">
-                      Preview
-                    </p>
-                    <div
-                      className={`flex h-9 items-center rounded-md border border-slate-200 px-2 text-xs ${
-                        typedSignatureStyle === "script"
-                          ? "italic tracking-wide"
-                          : "font-medium"
-                      }`}
-                      style={
-                        typedSignatureStyle === "script"
-                          ? {
-                              fontFamily:
-                                '"Brush Script MT","Segoe Script","Snell Roundhand",cursive'
-                            }
-                          : undefined
-                      }
-                    >
-                      {typedSignature.trim().length === 0
-                        ? "Type your name above"
-                        : typedSignature}
-                    </div>
-                  </div>
-                </div>
+              <div className="flex items-center gap-2 text-xs">
+                <span className="font-medium text-slate-700">
+                  Signature input
+                </span>
                 <button
                   type="button"
-                  onClick={() =>
-                    setActiveSignatureSource(
-                      typedSignature.trim().length > 0
-                        ? "typed"
-                        : activeSignatureSource
-                    )
-                  }
-                  disabled={typedSignature.trim().length === 0}
-                  className={`mt-2 rounded-md border px-2 py-1 text-xs font-medium transition ${
-                    activeSignatureSource === "typed"
+                  onClick={() => setSignatureInputMode("draw")}
+                  className={`rounded-md border px-2 py-1 transition ${
+                    signatureInputMode === "draw"
                       ? "border-emerald-500 bg-emerald-50 text-emerald-900"
                       : "border-slate-300 bg-white text-slate-800 hover:border-slate-400"
-                  } ${
-                    typedSignature.trim().length === 0 ? "opacity-60" : ""
                   }`}
                 >
-                  Use typed signature
+                  Draw
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSignatureInputMode("typed")}
+                  className={`rounded-md border px-2 py-1 transition ${
+                    signatureInputMode === "typed"
+                      ? "border-emerald-500 bg-emerald-50 text-emerald-900"
+                      : "border-slate-300 bg-white text-slate-800 hover:border-slate-400"
+                  }`}
+                >
+                  Typed
                 </button>
               </div>
+              {signatureInputMode === "draw" && (
+                <div className="space-y-1">
+                  <p className="text-xs font-medium text-slate-700">
+                    Drawn signature
+                  </p>
+                  <div className="rounded-md border border-slate-300 bg-slate-50 p-2">
+                    <canvas
+                      ref={signatureCanvasRef}
+                      width={400}
+                      height={140}
+                      className="h-28 w-full cursor-crosshair rounded border border-slate-300 bg-white"
+                      onPointerDown={startDrawing}
+                      onPointerMove={draw}
+                      onPointerUp={stopDrawing}
+                      onPointerLeave={stopDrawing}
+                    />
+                    <div className="mt-2 flex items-center justify-between gap-2 text-xs">
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setActiveSignatureSource(
+                              hasDrawing ? "drawn" : activeSignatureSource
+                            )
+                          }
+                          disabled={!hasDrawing}
+                          className={`rounded-md border px-2 py-1 text-xs font-medium transition ${
+                            activeSignatureSource === "drawn"
+                              ? "border-emerald-500 bg-emerald-50 text-emerald-900"
+                              : "border-slate-300 bg-white text-slate-800 hover:border-slate-400"
+                          } ${!hasDrawing ? "opacity-60" : ""}`}
+                        >
+                          Use drawn signature
+                        </button>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={clearSignature}
+                        className="rounded-md border border-slate-300 bg-white px-2 py-1 text-[11px] font-medium text-slate-700 shadow-sm transition hover:border-red-300 hover:text-red-700"
+                      >
+                        Clear
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+              {signatureInputMode === "typed" && (
+                <div className="space-y-1">
+                  <p className="text-xs font-medium text-slate-700">
+                    Typed signature
+                  </p>
+                  <input
+                    type="text"
+                    value={typedSignature}
+                    onChange={(event) =>
+                      setTypedSignature(event.target.value)
+                    }
+                    className={inputBaseClasses}
+                    placeholder="Type your name"
+                  />
+                  <div className="mt-1 grid grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] gap-2">
+                    <div className="space-y-1">
+                      <label
+                        htmlFor="typedStyle"
+                        className="text-[11px] font-medium text-slate-700"
+                      >
+                        Style
+                      </label>
+                      <div className="relative">
+                        <select
+                          id="typedStyle"
+                          value={typedSignatureStyle}
+                          onChange={(event) =>
+                            setTypedSignatureStyle(
+                              event.target.value as TypedSignatureStyle
+                            )
+                          }
+                          className={selectBaseClasses}
+                        >
+                          <option value="normal">Normal</option>
+                          <option value="script">Script-like</option>
+                        </select>
+                        <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                          <svg
+                            className="h-4 w-4 text-slate-400"
+                            viewBox="0 0 20 20"
+                            fill="none"
+                            aria-hidden="true"
+                          >
+                            <path
+                              d="M6 8l4 4 4-4"
+                              stroke="currentColor"
+                              strokeWidth="1.5"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                        </span>
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-[11px] font-medium text-slate-700">
+                        Preview
+                      </p>
+                      <div
+                        className={`flex h-9 items-center rounded-md border border-slate-200 px-2 text-xs ${
+                          typedSignatureStyle === "script"
+                            ? "italic tracking-wide"
+                            : "font-medium"
+                        }`}
+                        style={
+                          typedSignatureStyle === "script"
+                            ? {
+                                fontFamily:
+                                  '"Brush Script MT","Segoe Script","Snell Roundhand",cursive'
+                              }
+                            : undefined
+                        }
+                      >
+                        {typedSignature.trim().length === 0
+                          ? "Type your name above"
+                          : typedSignature}
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setActiveSignatureSource(
+                        typedSignature.trim().length > 0
+                          ? "typed"
+                          : activeSignatureSource
+                      )
+                    }
+                    disabled={typedSignature.trim().length === 0}
+                    className={`mt-2 rounded-md border px-2 py-1 text-xs font-medium transition ${
+                      activeSignatureSource === "typed"
+                        ? "border-emerald-500 bg-emerald-50 text-emerald-900"
+                        : "border-slate-300 bg-white text-slate-800 hover:border-slate-400"
+                    } ${
+                      typedSignature.trim().length === 0 ? "opacity-60" : ""
+                    }`}
+                  >
+                    Use typed signature
+                  </button>
+                </div>
+              )}
               <p className="text-xs text-slate-600">
                 With signature mode active, click anywhere on the PDF preview to place
                 the current signature on that page.
@@ -982,86 +1043,98 @@ export default function PdfSignatureEditor() {
               {placements.map((placement) => (
                 <li
                   key={placement.id}
-                  className="flex items-start justify-between gap-2 rounded-md border border-slate-200 bg-slate-50 px-2 py-1.5"
+                  className="flex flex-col gap-1 rounded-md border border-slate-200 bg-slate-50 px-2 py-1.5"
                 >
-                  <div className="space-y-0.5">
-                    <p className="font-medium text-slate-900">
-                      Page {placement.pageIndex + 1} ·{" "}
-                      {placement.type === "signature"
-                        ? "Signature"
-                        : "Text"}
-                    </p>
-                    {placement.type === "signature" ? (
-                      <p className="text-[11px] text-slate-700">
-                        {placement.source === "drawn"
-                          ? "Drawn signature"
-                          : placement.text
-                          ? placement.text
-                          : "Typed signature"}
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="space-y-0.5">
+                      <p className="font-medium text-slate-900">
+                        Page {placement.pageIndex + 1} ·{" "}
+                        {placement.type === "signature"
+                          ? "Signature"
+                          : "Text"}
                       </p>
-                    ) : (
-                      <p className="truncate text-[11px] text-slate-700">
-                        {placement.text}
-                      </p>
-                    )}
-                  </div>
-                  {placement.type === "signature" && (
-                    <div className="mt-1 flex items-center gap-2 text-[11px] text-slate-700">
-                      <span>Size</span>
-                      <input
-                        type="range"
-                        min={0.5}
-                        max={2}
-                        step={0.1}
-                        value={placement.sizeScale}
-                        onChange={(event) => {
-                          const scale = Number.parseFloat(
-                            event.target.value
-                          );
-                          setPlacements((previous) =>
-                            previous.map((item) =>
-                              item.id === placement.id
-                                ? { ...item, sizeScale: scale }
-                                : item
-                            )
-                          );
-                        }}
-                        className="h-1 flex-1 cursor-pointer accent-emerald-600"
-                      />
-                      <span className="w-10 text-right">
-                        {Math.round(placement.sizeScale * 100)}%
-                      </span>
+                      {placement.type === "signature" ? (
+                        <p className="text-[11px] text-slate-700">
+                          {placement.source === "drawn"
+                            ? "Drawn signature"
+                            : placement.text
+                            ? placement.text
+                            : "Typed signature"}
+                        </p>
+                      ) : (
+                        <p className="truncate text-[11px] text-slate-700">
+                          {placement.text}
+                        </p>
+                      )}
                     </div>
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => handleRemovePlacement(placement.id)}
-                    className="mt-0.5 inline-flex items-center rounded-md border border-slate-300 bg-white px-1.5 py-0.5 text-[10px] font-medium text-slate-700 shadow-sm transition hover:border-red-300 hover:text-red-700"
-                  >
-                    Remove
-                  </button>
+                    <button
+                      type="button"
+                      onClick={() => handleRemovePlacement(placement.id)}
+                      className="mt-0.5 inline-flex items-center rounded-md border border-red-200 bg-white px-1.5 py-0.5 text-[10px] font-medium text-red-600 shadow-sm transition hover:border-red-400 hover:bg-red-50"
+                      aria-label="Delete placement"
+                    >
+                      <svg
+                        className="h-3 w-3"
+                        viewBox="0 0 20 20"
+                        fill="none"
+                        aria-hidden="true"
+                      >
+                        <path
+                          d="M6 6h8m-7 0v8m4-8v8M5 4h10l-1 12H6L5 4z"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-2 text-[11px] text-slate-700">
+                    <span>Size</span>
+                    <input
+                      type="range"
+                      min={placement.type === "signature" ? 0.5 : 8}
+                      max={placement.type === "signature" ? 2 : 24}
+                      step={placement.type === "signature" ? 0.1 : 1}
+                      value={
+                        placement.type === "signature"
+                          ? placement.sizeScale
+                          : placement.fontSize
+                      }
+                      onChange={(event) => {
+                        const value = Number.parseFloat(event.target.value);
+                        setPlacements((previous) =>
+                          previous.map((item) => {
+                            if (item.id !== placement.id) {
+                              return item;
+                            }
+                            if (item.type === "signature") {
+                              return {
+                                ...item,
+                                sizeScale: value
+                              };
+                            }
+                            return {
+                              ...item,
+                              fontSize: value
+                            };
+                          })
+                        );
+                      }}
+                      className="h-1 flex-1 cursor-pointer accent-emerald-600"
+                    />
+                    <span className="w-12 text-right">
+                      {placement.type === "signature"
+                        ? `${Math.round(
+                            placement.sizeScale * 100
+                          )}%`
+                        : `${placement.fontSize.toFixed(0)} pt`}
+                    </span>
+                  </div>
                 </li>
               ))}
             </ul>
           )}
-          <div className="space-y-2 pt-2">
-            <button
-              type="button"
-              onClick={handleApplyAndDownload}
-              disabled={!canApplyChanges}
-              className={`inline-flex w-full items-center justify-center rounded-md px-4 py-2 text-sm font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 ${
-                canApplyChanges
-                  ? "bg-emerald-600 text-white hover:bg-emerald-700"
-                  : "cursor-not-allowed bg-slate-200 text-slate-500"
-              }`}
-            >
-              Apply changes &amp; download PDF
-            </button>
-            <p className="text-[11px] text-slate-600">
-              The updated PDF will be generated in your browser and saved with a new file
-              name. Keep a copy of your original file if you may need to revert later.
-            </p>
-          </div>
         </div>
       </section>
       <section
@@ -1072,48 +1145,76 @@ export default function PdfSignatureEditor() {
           <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-700">
             Preview
           </h2>
-          <div className="flex items-center gap-2 text-xs text-slate-700">
-            {typeof pageCount === "number" && pageCount > 0 ? (
-              <>
-                <span>Page</span>
-                <div className="relative">
-                  <select
-                    value={selectedPageIndex}
-                    onChange={(event) =>
-                      setSelectedPageIndex(
-                        Number.parseInt(event.target.value, 10)
-                      )
-                    }
-                    className={selectBaseClasses}
-                  >
-                    {Array.from({ length: pageCount }).map((_, index) => (
-                      <option key={index} value={index}>
-                        {index + 1}
-                      </option>
-                    ))}
-                  </select>
-                  <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-                    <svg
-                      className="h-4 w-4 text-slate-400"
-                      viewBox="0 0 20 20"
-                      fill="none"
-                      aria-hidden="true"
+          <div className="flex items-center gap-3 text-xs text-slate-700">
+            <div className="flex items-center gap-2">
+              {typeof pageCount === "number" && pageCount > 0 ? (
+                <>
+                  <span>Page</span>
+                  <div className="relative">
+                    <select
+                      value={selectedPageIndex}
+                      onChange={(event) =>
+                        setSelectedPageIndex(
+                          Number.parseInt(event.target.value, 10)
+                        )
+                      }
+                      className={selectBaseClasses}
                     >
-                      <path
-                        d="M6 8l4 4 4-4"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </span>
-                </div>
-                <span>of {pageCount}</span>
-              </>
-            ) : (
-              <span>No PDF loaded yet</span>
-            )}
+                      {Array.from({ length: pageCount }).map((_, index) => (
+                        <option key={index} value={index}>
+                          {index + 1}
+                        </option>
+                      ))}
+                    </select>
+                    <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                      <svg
+                        className="h-4 w-4 text-slate-400"
+                        viewBox="0 0 20 20"
+                        fill="none"
+                        aria-hidden="true"
+                      >
+                        <path
+                          d="M6 8l4 4 4-4"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </span>
+                  </div>
+                  <span>of {pageCount}</span>
+                </>
+              ) : (
+                <span>No PDF loaded yet</span>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={handleApplyAndDownload}
+              disabled={!canApplyChanges}
+              className={`inline-flex items-center justify-center rounded-md border px-2.5 py-1 text-xs font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 ${
+                canApplyChanges
+                  ? "border-emerald-500 bg-emerald-50 text-emerald-800 hover:bg-emerald-100"
+                  : "cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400"
+              }`}
+              aria-label="Download signed PDF"
+            >
+              <svg
+                className="h-4 w-4"
+                viewBox="0 0 20 20"
+                fill="none"
+                aria-hidden="true"
+              >
+                <path
+                  d="M10 3v10m0 0l-3.5-3.5M10 13l3.5-3.5M4 15h12"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </button>
           </div>
         </div>
         <div className="relative flex min-h-[480px] items-center justify-center overflow-auto rounded-md border border-slate-200 bg-slate-50 p-2">
