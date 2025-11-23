@@ -56,6 +56,7 @@ const createTodayString = () => {
 export default function PdfSignatureEditor() {
   const [fileName, setFileName] = useState<string | null>(null);
   const [pdfBytes, setPdfBytes] = useState<ArrayBuffer | null>(null);
+  const [previewBytes, setPreviewBytes] = useState<ArrayBuffer | null>(null);
   const [pageCount, setPageCount] = useState<number | null>(null);
   const [selectedPageIndex, setSelectedPageIndex] = useState(0);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -79,6 +80,8 @@ export default function PdfSignatureEditor() {
   const [hasDrawing, setHasDrawing] = useState(false);
   const [isDrawing, setIsDrawing] = useState(false);
   const lastPointRef = useRef<{ x: number; y: number } | null>(null);
+  const [drawnSignaturePreviewUrl, setDrawnSignaturePreviewUrl] =
+    useState<string | null>(null);
 
   const previewCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const signatureCanvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -108,6 +111,7 @@ export default function PdfSignatureEditor() {
     if (!file) {
       setFileName(null);
       setPdfBytes(null);
+      setPreviewBytes(null);
       setPageCount(null);
       setPlacements([]);
       setLoadError(null);
@@ -118,6 +122,7 @@ export default function PdfSignatureEditor() {
       setLoadError("Please select a PDF file.");
       setFileName(null);
       setPdfBytes(null);
+      setPreviewBytes(null);
       setPageCount(null);
       setPlacements([]);
       return;
@@ -135,12 +140,18 @@ export default function PdfSignatureEditor() {
       if (!(result instanceof ArrayBuffer)) {
         setLoadError("Unable to read this PDF file.");
         setPdfBytes(null);
+        setPreviewBytes(null);
         setPageCount(null);
         return;
       }
 
-      setPdfBytes(result);
-      PDFDocument.load(result).then((doc) => {
+      const bytesForEdit = result.slice(0);
+      const bytesForPreview = result.slice(0);
+
+      setPdfBytes(bytesForEdit);
+      setPreviewBytes(bytesForPreview);
+
+      PDFDocument.load(bytesForEdit).then((doc) => {
         const count = doc.getPageCount();
         setPageCount(count);
       });
@@ -149,7 +160,7 @@ export default function PdfSignatureEditor() {
   };
 
   useEffect(() => {
-    if (!pdfBytes) {
+    if (!previewBytes) {
       return;
     }
 
@@ -190,7 +201,7 @@ export default function PdfSignatureEditor() {
           `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
       }
 
-      const loadingTask = pdfjsLib.getDocument({ data: pdfBytes });
+      const loadingTask = pdfjsLib.getDocument({ data: previewBytes });
       const pdf = await loadingTask.promise;
       const pageIndex = selectedPageIndex + 1;
       const clampedIndex =
@@ -243,7 +254,7 @@ export default function PdfSignatureEditor() {
     return () => {
       cancelled = true;
     };
-  }, [pdfBytes, selectedPageIndex]);
+  }, [previewBytes, selectedPageIndex]);
 
   useEffect(() => {
     const canvas = signatureCanvasRef.current;
@@ -305,6 +316,14 @@ export default function PdfSignatureEditor() {
   const stopDrawing = () => {
     setIsDrawing(false);
     lastPointRef.current = null;
+    const canvas = signatureCanvasRef.current;
+    if (!canvas) {
+      return;
+    }
+    if (hasDrawing) {
+      const url = canvas.toDataURL("image/png");
+      setDrawnSignaturePreviewUrl(url);
+    }
   };
 
   const clearSignature = () => {
@@ -320,6 +339,7 @@ export default function PdfSignatureEditor() {
     context.fillStyle = "#ffffff";
     context.fillRect(0, 0, canvas.width, canvas.height);
     setHasDrawing(false);
+    setDrawnSignaturePreviewUrl(null);
     if (activeSignatureSource === "drawn") {
       setActiveSignatureSource(null);
     }
@@ -346,7 +366,16 @@ export default function PdfSignatureEditor() {
     const yNorm = y / rect.height;
 
     if (placementMode === "signature") {
-      if (activeSignatureSource === "drawn" && hasDrawing) {
+      let resolvedSource: SignatureSource = activeSignatureSource;
+      if (!resolvedSource) {
+        if (hasDrawing) {
+          resolvedSource = "drawn";
+        } else if (typedSignature.trim().length > 0) {
+          resolvedSource = "typed";
+        }
+      }
+
+      if (resolvedSource === "drawn" && hasDrawing) {
         const widthNorm = 0.3;
         const heightNorm =
           (widthNorm * viewportSize.height) / viewportSize.width;
@@ -362,7 +391,7 @@ export default function PdfSignatureEditor() {
         };
         setPlacements((previous) => [...previous, placement]);
       } else if (
-        activeSignatureSource === "typed" &&
+        resolvedSource === "typed" &&
         typedSignature.trim().length > 0
       ) {
         const widthNorm = 0.3;
@@ -700,7 +729,7 @@ export default function PdfSignatureEditor() {
                     <div
                       className={`flex h-9 items-center rounded-md border border-slate-200 px-2 text-xs ${
                         typedSignatureStyle === "script"
-                          ? "italic"
+                          ? "italic tracking-wide"
                           : "font-medium"
                       }`}
                     >
@@ -831,7 +860,7 @@ export default function PdfSignatureEditor() {
               )}
             </div>
           </div>
-          <div className="relative flex min-h-[260px] items-center justify-center overflow-auto rounded-md border border-slate-200 bg-slate-50 p-2">
+          <div className="relative flex min-h-[480px] items-center justify-center overflow-auto rounded-md border border-slate-200 bg-slate-50 p-2">
             {renderError ? (
               <p className="text-xs text-red-600">{renderError}</p>
             ) : !pdfBytes ? (
@@ -845,12 +874,12 @@ export default function PdfSignatureEditor() {
               </p>
             ) : (
               <div
-                className="relative max-h-[80vh] w-full max-w-full cursor-crosshair"
+                className="relative h-[80vh] w-full max-w-full cursor-crosshair"
                 onClick={handlePreviewClick}
               >
                 <canvas
                   ref={previewCanvasRef}
-                  className="mx-auto block max-h-[80vh] w-full rounded-md bg-white shadow-sm"
+                  className="mx-auto block h-full w-auto max-h-full rounded-md bg-white shadow-sm"
                 />
                 {viewportSize &&
                   placementsForSelectedPage.map((placement) => {
@@ -860,6 +889,11 @@ export default function PdfSignatureEditor() {
                       const width = placement.widthNorm * viewportSize.width;
                       const height =
                         placement.heightNorm * viewportSize.height;
+                      const backgroundImage =
+                        placement.source === "drawn" &&
+                        drawnSignaturePreviewUrl
+                          ? `url(${drawnSignaturePreviewUrl})`
+                          : undefined;
                       return (
                         <div
                           key={placement.id}
@@ -868,9 +902,26 @@ export default function PdfSignatureEditor() {
                             left: left - width / 2,
                             top: top - height / 2,
                             width,
-                            height
+                            height,
+                            backgroundImage,
+                            backgroundRepeat: "no-repeat",
+                            backgroundSize: "contain",
+                            backgroundPosition: "center"
                           }}
-                        />
+                        >
+                          {placement.source === "typed" &&
+                            placement.text && (
+                              <span
+                                className={`pointer-events-none block w-full text-center text-[11px] text-slate-900 ${
+                                  typedSignatureStyle === "script"
+                                    ? "italic tracking-wide"
+                                    : "font-medium"
+                                }`}
+                              >
+                                {placement.text}
+                              </span>
+                            )}
+                        </div>
                       );
                     }
                     const approximateWidth =
