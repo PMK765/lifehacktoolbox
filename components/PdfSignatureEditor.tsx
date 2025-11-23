@@ -53,6 +53,81 @@ const createTodayString = () => {
   return `${year}-${month}-${day}`;
 };
 
+const buildTrimmedSignatureDataUrl = (canvas: HTMLCanvasElement) => {
+  const context = canvas.getContext("2d");
+  if (!context) {
+    return canvas.toDataURL("image/png");
+  }
+
+  const width = canvas.width;
+  const height = canvas.height;
+  const imageData = context.getImageData(0, 0, width, height);
+  const data = imageData.data;
+
+  let minX = width;
+  let minY = height;
+  let maxX = 0;
+  let maxY = 0;
+  let hasInk = false;
+
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      const index = (y * width + x) * 4;
+      const r = data[index];
+      const g = data[index + 1];
+      const b = data[index + 2];
+      const a = data[index + 3];
+
+      const isTransparent = a === 0;
+      const isWhite = r > 250 && g > 250 && b > 250;
+
+      if (!isTransparent && !isWhite) {
+        hasInk = true;
+        if (x < minX) {
+          minX = x;
+        }
+        if (y < minY) {
+          minY = y;
+        }
+        if (x > maxX) {
+          maxX = x;
+        }
+        if (y > maxY) {
+          maxY = y;
+        }
+      }
+    }
+  }
+
+  if (!hasInk) {
+    return canvas.toDataURL("image/png");
+  }
+
+  const padding = 4;
+  const trimmedMinX = Math.max(minX - padding, 0);
+  const trimmedMinY = Math.max(minY - padding, 0);
+  const trimmedMaxX = Math.min(maxX + padding, width - 1);
+  const trimmedMaxY = Math.min(maxY + padding, height - 1);
+
+  const trimmedWidth = trimmedMaxX - trimmedMinX + 1;
+  const trimmedHeight = trimmedMaxY - trimmedMinY + 1;
+
+  const outCanvas = document.createElement("canvas");
+  outCanvas.width = trimmedWidth;
+  outCanvas.height = trimmedHeight;
+  const outContext = outCanvas.getContext("2d");
+  if (!outContext) {
+    return canvas.toDataURL("image/png");
+  }
+  outContext.putImageData(
+    imageData,
+    -trimmedMinX,
+    -trimmedMinY
+  );
+
+  return outCanvas.toDataURL("image/png");
+};
+
 export default function PdfSignatureEditor() {
   const [fileName, setFileName] = useState<string | null>(null);
   const [pdfBytes, setPdfBytes] = useState<ArrayBuffer | null>(null);
@@ -345,15 +420,14 @@ export default function PdfSignatureEditor() {
     }
   };
 
-  const handlePreviewClick = (event: React.MouseEvent<HTMLDivElement>) => {
+  const handlePreviewClick = (
+    event: React.MouseEvent<HTMLCanvasElement>
+  ) => {
     if (!pdfBytes || !viewportSize || isOverPageLimit) {
       return;
     }
-    const canvas = previewCanvasRef.current;
-    if (!canvas) {
-      return;
-    }
 
+    const canvas = event.currentTarget;
     const rect = canvas.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
@@ -873,76 +947,86 @@ export default function PdfSignatureEditor() {
                 parts before editing.
               </p>
             ) : (
-              <div
-                className="relative h-[80vh] w-full max-w-full cursor-crosshair"
-                onClick={handlePreviewClick}
-              >
-                <canvas
-                  ref={previewCanvasRef}
-                  className="mx-auto block h-full w-auto max-h-full rounded-md bg-white shadow-sm"
-                />
-                {viewportSize &&
-                  placementsForSelectedPage.map((placement) => {
-                    const left = placement.xNorm * viewportSize.width;
-                    const top = placement.yNorm * viewportSize.height;
-                    if (placement.type === "signature") {
-                      const width = placement.widthNorm * viewportSize.width;
-                      const height =
-                        placement.heightNorm * viewportSize.height;
-                      const backgroundImage =
-                        placement.source === "drawn" &&
-                        drawnSignaturePreviewUrl
-                          ? `url(${drawnSignaturePreviewUrl})`
-                          : undefined;
+              <div className="flex h-[80vh] w-full items-center justify-center">
+                <div className="relative inline-block">
+                  <canvas
+                    ref={previewCanvasRef}
+                    className="block max-h-[80vh] rounded-md bg-white shadow-sm"
+                    onClick={handlePreviewClick}
+                  />
+                  {viewportSize &&
+                    placementsForSelectedPage.map((placement) => {
+                      const leftPercent = placement.xNorm * 100;
+                      const topPercent = placement.yNorm * 100;
+                      if (placement.type === "signature") {
+                        const widthPercent =
+                          placement.widthNorm * 100;
+                        const heightPercent =
+                          placement.heightNorm * 100;
+                        const backgroundImage =
+                          placement.source === "drawn" &&
+                          drawnSignaturePreviewUrl
+                            ? `url(${drawnSignaturePreviewUrl})`
+                            : undefined;
+                        return (
+                          <div
+                            key={placement.id}
+                            className="absolute border border-emerald-400/70 bg-emerald-50/40"
+                            style={{
+                              left: `${leftPercent}%`,
+                              top: `${topPercent}%`,
+                              width: `${widthPercent}%`,
+                              height: `${heightPercent}%`,
+                              transform: "translate(-50%, -50%)",
+                              backgroundImage,
+                              backgroundRepeat: "no-repeat",
+                              backgroundSize: "contain",
+                              backgroundPosition: "center"
+                            }}
+                          >
+                            {placement.source === "typed" &&
+                              placement.text && (
+                                <span
+                                  className={`pointer-events-none block w-full text-center text-[11px] text-slate-900 ${
+                                    typedSignatureStyle === "script"
+                                      ? "italic tracking-wide"
+                                      : "font-medium"
+                                  }`}
+                                >
+                                  {placement.text}
+                                </span>
+                              )}
+                          </div>
+                        );
+                      }
+                      const approxWidthPercent =
+                        Math.max(
+                          8,
+                          Math.min(
+                            40,
+                            (placement.text.length / 20) * 20
+                          )
+                        );
+                      const heightPx = placement.fontSize * 1.6;
                       return (
                         <div
                           key={placement.id}
-                          className="pointer-events-none absolute border border-emerald-400/70 bg-emerald-50/40"
+                          className="absolute rounded border border-sky-400/70 bg-sky-50/60 px-1 text-[10px]"
                           style={{
-                            left: left - width / 2,
-                            top: top - height / 2,
-                            width,
-                            height,
-                            backgroundImage,
-                            backgroundRepeat: "no-repeat",
-                            backgroundSize: "contain",
-                            backgroundPosition: "center"
+                            left: `${leftPercent}%`,
+                            top: `${topPercent}%`,
+                            transform: "translate(-50%, -50%)",
+                            minWidth: "40px",
+                            maxWidth: "160px",
+                            width: `${approxWidthPercent}%`,
+                            height: `${heightPx}px`
                           }}
                         >
-                          {placement.source === "typed" &&
-                            placement.text && (
-                              <span
-                                className={`pointer-events-none block w-full text-center text-[11px] text-slate-900 ${
-                                  typedSignatureStyle === "script"
-                                    ? "italic tracking-wide"
-                                    : "font-medium"
-                                }`}
-                              >
-                                {placement.text}
-                              </span>
-                            )}
+                          {placement.text}
                         </div>
                       );
-                    }
-                    const approximateWidth =
-                      (placement.text.length / 12) *
-                      (placement.fontSize * 6);
-                    const height = placement.fontSize * 1.6;
-                    return (
-                      <div
-                        key={placement.id}
-                        className="pointer-events-none absolute rounded border border-sky-400/70 bg-sky-50/60 px-1 text-[10px]"
-                        style={{
-                          left: left - approximateWidth / 2,
-                          top: top - height / 2,
-                          minWidth: 40,
-                          maxWidth: 160
-                        }}
-                      >
-                        {placement.text}
-                      </div>
-                    );
-                  })}
+                    })}
+                </div>
               </div>
             )}
           </div>
