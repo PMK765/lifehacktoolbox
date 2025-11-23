@@ -168,6 +168,26 @@ export default function HomePage() {
               </span>
             </span>
           </Link>
+          <Link
+            href="/how-long-to-freeze"
+            className="group flex flex-col justify-between rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition hover:border-slate-300 hover:shadow-md"
+          >
+            <div className="space-y-2">
+              <h3 className="text-base font-semibold text-slate-900">
+                How Long to Freeze?
+              </h3>
+              <p className="text-sm text-slate-700">
+                Pick a food, freezer type, and frozen-on date to see how long it&apos;s
+                recommended to keep it frozen and when quality starts to drop.
+              </p>
+            </div>
+            <span className="mt-4 inline-flex items-center text-sm font-medium text-emerald-700">
+              Open tool
+              <span className="ml-1 text-xs transition group-hover:translate-x-0.5">
+                →
+              </span>
+            </span>
+          </Link>
         </div>
       </section>
     </div>
