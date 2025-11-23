@@ -31,6 +31,12 @@ export default function RootLayout({ children }: RootLayoutProps) {
                 >
                   Hourly → Salary → After-Tax
                 </Link>
+                <Link
+                  href="/random-meal-generator"
+                  className="hover:text-slate-900"
+                >
+                  Random Meal Generator
+                </Link>
               </nav>
             </div>
           </header>
