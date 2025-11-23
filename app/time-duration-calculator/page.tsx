@@ -99,23 +99,6 @@ export default function TimeDurationCalculatorPage() {
               posting date and add or subtract durations to schedule recurring tasks.
             </li>
           </ul>
-          <p>
-            For other planning tools, you might also find the{" "}
-            <Link
-              href="/how-long-to-freeze"
-              className="font-medium text-emerald-700 hover:text-emerald-800"
-            >
-              How Long to Freeze?
-            </Link>{" "}
-            calculator useful when managing food in your freezer or the{" "}
-            <Link
-              href="/hourly-salary-tax-calculator"
-              className="font-medium text-emerald-700 hover:text-emerald-800"
-            >
-              Hourly → Salary → After-Tax Calculator
-            </Link>{" "}
-            when aligning your time planning with your budget.
-          </p>
           <p className="text-xs text-slate-600">
             For anything involving legal contracts, compliance, or time zones across
             regions, use this tool only as a rough guide and confirm details with official
