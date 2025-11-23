@@ -4,7 +4,61 @@ import { useState } from "react";
 
 type FilingStatus = "single" | "married";
 
-type LocationKey = "us_generic" | "california" | "texas" | "new_york";
+type CalculationMode = "hourly" | "salary";
+
+type LocationKey =
+  | "us_generic"
+  | "al"
+  | "ak"
+  | "az"
+  | "ar"
+  | "ca"
+  | "co"
+  | "ct"
+  | "de"
+  | "fl"
+  | "ga"
+  | "hi"
+  | "id"
+  | "il"
+  | "in"
+  | "ia"
+  | "ks"
+  | "ky"
+  | "la"
+  | "me"
+  | "md"
+  | "ma"
+  | "mi"
+  | "mn"
+  | "ms"
+  | "mo"
+  | "mt"
+  | "ne"
+  | "nv"
+  | "nh"
+  | "nj"
+  | "nm"
+  | "ny"
+  | "nc"
+  | "nd"
+  | "oh"
+  | "ok"
+  | "or"
+  | "pa"
+  | "ri"
+  | "sc"
+  | "sd"
+  | "tn"
+  | "tx"
+  | "ut"
+  | "vt"
+  | "va"
+  | "wa"
+  | "wv"
+  | "wi"
+  | "wy"
+  | "dc";
 
 type TaxBracket = {
   upTo: number | null;
@@ -30,7 +84,13 @@ type CalculationResult = {
     monthly: number;
     biWeekly: number;
     weekly: number;
+    hourly: number;
   };
+};
+
+type LocationOption = {
+  key: LocationKey;
+  label: string;
 };
 
 const federalBracketsSingle: TaxBracket[] = [
@@ -53,12 +113,115 @@ const federalBracketsMarried: TaxBracket[] = [
   { upTo: null, rate: 0.37 }
 ];
 
-const stateRates: Record<LocationKey, number> = {
+const stateTaxRates: Record<LocationKey, number> = {
   us_generic: 0.04,
-  california: 0.065,
-  texas: 0,
-  new_york: 0.055
+  al: 0.04,
+  ak: 0,
+  az: 0.03,
+  ar: 0.04,
+  ca: 0.067,
+  co: 0.044,
+  ct: 0.05,
+  de: 0.045,
+  fl: 0,
+  ga: 0.045,
+  hi: 0.06,
+  id: 0.045,
+  il: 0.04,
+  in: 0.032,
+  ia: 0.04,
+  ks: 0.045,
+  ky: 0.045,
+  la: 0.035,
+  me: 0.055,
+  md: 0.047,
+  ma: 0.05,
+  mi: 0.042,
+  mn: 0.055,
+  ms: 0.04,
+  mo: 0.04,
+  mt: 0.045,
+  ne: 0.05,
+  nv: 0,
+  nh: 0,
+  nj: 0.055,
+  nm: 0.04,
+  ny: 0.058,
+  nc: 0.045,
+  nd: 0.025,
+  oh: 0.03,
+  ok: 0.035,
+  or: 0.07,
+  pa: 0.031,
+  ri: 0.045,
+  sc: 0.04,
+  sd: 0,
+  tn: 0,
+  tx: 0,
+  ut: 0.045,
+  vt: 0.055,
+  va: 0.045,
+  wa: 0,
+  wv: 0.045,
+  wi: 0.05,
+  wy: 0,
+  dc: 0.06
 };
+
+const locationOptions: LocationOption[] = [
+  { key: "us_generic", label: "United States – Generic" },
+  { key: "al", label: "Alabama" },
+  { key: "ak", label: "Alaska" },
+  { key: "az", label: "Arizona" },
+  { key: "ar", label: "Arkansas" },
+  { key: "ca", label: "California" },
+  { key: "co", label: "Colorado" },
+  { key: "ct", label: "Connecticut" },
+  { key: "de", label: "Delaware" },
+  { key: "fl", label: "Florida" },
+  { key: "ga", label: "Georgia" },
+  { key: "hi", label: "Hawaii" },
+  { key: "id", label: "Idaho" },
+  { key: "il", label: "Illinois" },
+  { key: "in", label: "Indiana" },
+  { key: "ia", label: "Iowa" },
+  { key: "ks", label: "Kansas" },
+  { key: "ky", label: "Kentucky" },
+  { key: "la", label: "Louisiana" },
+  { key: "me", label: "Maine" },
+  { key: "md", label: "Maryland" },
+  { key: "ma", label: "Massachusetts" },
+  { key: "mi", label: "Michigan" },
+  { key: "mn", label: "Minnesota" },
+  { key: "ms", label: "Mississippi" },
+  { key: "mo", label: "Missouri" },
+  { key: "mt", label: "Montana" },
+  { key: "ne", label: "Nebraska" },
+  { key: "nv", label: "Nevada" },
+  { key: "nh", label: "New Hampshire" },
+  { key: "nj", label: "New Jersey" },
+  { key: "nm", label: "New Mexico" },
+  { key: "ny", label: "New York" },
+  { key: "nc", label: "North Carolina" },
+  { key: "nd", label: "North Dakota" },
+  { key: "oh", label: "Ohio" },
+  { key: "ok", label: "Oklahoma" },
+  { key: "or", label: "Oregon" },
+  { key: "pa", label: "Pennsylvania" },
+  { key: "ri", label: "Rhode Island" },
+  { key: "sc", label: "South Carolina" },
+  { key: "sd", label: "South Dakota" },
+  { key: "tn", label: "Tennessee" },
+  { key: "tx", label: "Texas" },
+  { key: "ut", label: "Utah" },
+  { key: "vt", label: "Vermont" },
+  { key: "va", label: "Virginia" },
+  { key: "wa", label: "Washington" },
+  { key: "wv", label: "West Virginia" },
+  { key: "wi", label: "Wisconsin" },
+  { key: "wy", label: "Wyoming" },
+  { key: "dc", label: "Washington, D.C." }
+];
 
 const ficaRate = 0.0765;
 
@@ -91,6 +254,34 @@ function calculateProgressiveTax(income: number, brackets: TaxBracket[]) {
   return tax;
 }
 
+function calculateAnnualTaxes(
+  income: number,
+  filingStatus: FilingStatus,
+  location: LocationKey
+) {
+  if (!Number.isFinite(income) || income <= 0) {
+    return {
+      taxes: { federal: 0, state: 0, fica: 0, total: 0 },
+      netAnnual: 0
+    };
+  }
+
+  const brackets =
+    filingStatus === "single" ? federalBracketsSingle : federalBracketsMarried;
+
+  const federal = calculateProgressiveTax(income, brackets);
+  const stateRate = stateTaxRates[location];
+  const state = income * stateRate;
+  const fica = income * ficaRate;
+  const total = federal + state + fica;
+  const netAnnual = income - total;
+
+  return {
+    taxes: { federal, state, fica, total },
+    netAnnual
+  };
+}
+
 function formatCurrency(value: number) {
   const formatter = new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -113,111 +304,247 @@ function formatCurrencyWithCents(value: number) {
 }
 
 export default function HourlySalaryTaxCalculator() {
+  const [mode, setMode] = useState<CalculationMode>("hourly");
   const [hourlyWage, setHourlyWage] = useState("");
+  const [annualSalary, setAnnualSalary] = useState("");
   const [hoursPerWeek, setHoursPerWeek] = useState("40");
   const [weeksPerYear, setWeeksPerYear] = useState("52");
   const [filingStatus, setFilingStatus] = useState<FilingStatus>("single");
   const [location, setLocation] = useState<LocationKey>("us_generic");
   const [result, setResult] = useState<CalculationResult | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [hourlyError, setHourlyError] = useState<string | null>(null);
+  const [salaryError, setSalaryError] = useState<string | null>(null);
 
   const handleCalculate = () => {
-    const hourlyRaw = parseFloat(hourlyWage.replace(",", "."));
     const hoursRaw = parseFloat(hoursPerWeek);
     const weeksRaw = parseFloat(weeksPerYear);
 
-    const safeHourly = Number.isFinite(hourlyRaw) ? Math.max(0, hourlyRaw) : 0;
     const safeHours = Number.isFinite(hoursRaw) ? Math.max(0, hoursRaw) : 0;
     const safeWeeks = Number.isFinite(weeksRaw) ? Math.max(0, weeksRaw) : 0;
+    const hoursTimesWeeks = safeHours * safeWeeks;
 
-    if (safeHourly <= 0) {
-      setError("Enter an hourly wage greater than 0 to calculate.");
-      setResult(null);
-      return;
-    }
+    if (mode === "hourly") {
+      const hourlyRaw = parseFloat(hourlyWage.replace(",", "."));
+      const safeHourly = Number.isFinite(hourlyRaw)
+        ? Math.max(0, hourlyRaw)
+        : 0;
 
-    setError(null);
-
-    const grossYearly = safeHourly * safeHours * safeWeeks;
-    const grossWeekly = safeHourly * safeHours;
-    const grossBiWeekly = grossYearly / 26;
-    const grossMonthly = grossYearly / 12;
-
-    const brackets =
-      filingStatus === "single"
-        ? federalBracketsSingle
-        : federalBracketsMarried;
-
-    const estimatedFederalTax = calculateProgressiveTax(
-      grossYearly,
-      brackets
-    );
-
-    const stateRate = stateRates[location];
-    const estimatedStateTax = grossYearly * stateRate;
-    const estimatedFicaTax = grossYearly * ficaRate;
-    const totalTax =
-      estimatedFederalTax + estimatedStateTax + estimatedFicaTax;
-
-    const netYearly = grossYearly - totalTax;
-    const netMonthly = netYearly / 12;
-    const netBiWeekly = netYearly / 26;
-    const netWeekly = netYearly / 52;
-
-    setResult({
-      gross: {
-        hourly: safeHourly,
-        weekly: grossWeekly,
-        biWeekly: grossBiWeekly,
-        monthly: grossMonthly,
-        yearly: grossYearly
-      },
-      taxes: {
-        federal: estimatedFederalTax,
-        state: estimatedStateTax,
-        fica: estimatedFicaTax,
-        total: totalTax
-      },
-      net: {
-        yearly: netYearly,
-        monthly: netMonthly,
-        biWeekly: netBiWeekly,
-        weekly: netWeekly
+      if (safeHourly <= 0) {
+        setHourlyError("Enter an hourly wage greater than 0 to calculate.");
+        setSalaryError(null);
+        setResult(null);
+        return;
       }
-    });
+
+      setHourlyError(null);
+      setSalaryError(null);
+
+      const grossYearly = safeHourly * hoursTimesWeeks;
+      const { taxes, netAnnual } = calculateAnnualTaxes(
+        grossYearly,
+        filingStatus,
+        location
+      );
+
+      const grossMonthly = grossYearly / 12;
+      const grossBiWeekly = grossYearly / 26;
+      const grossWeekly = grossYearly / 52;
+
+      const netMonthly = netAnnual / 12;
+      const netBiWeekly = netAnnual / 26;
+      const netWeekly = netAnnual / 52;
+      const netHourly =
+        hoursTimesWeeks > 0 ? netAnnual / hoursTimesWeeks : 0;
+
+      setResult({
+        gross: {
+          hourly: safeHourly,
+          weekly: grossWeekly,
+          biWeekly: grossBiWeekly,
+          monthly: grossMonthly,
+          yearly: grossYearly
+        },
+        taxes,
+        net: {
+          yearly: netAnnual,
+          monthly: netMonthly,
+          biWeekly: netBiWeekly,
+          weekly: netWeekly,
+          hourly: netHourly
+        }
+      });
+    } else {
+      const annualRaw = parseFloat(annualSalary.replace(",", "."));
+      const safeAnnual = Number.isFinite(annualRaw)
+        ? Math.max(0, annualRaw)
+        : 0;
+
+      if (safeAnnual <= 0) {
+        setSalaryError("Enter an annual salary greater than 0 to calculate.");
+        setHourlyError(null);
+        setResult(null);
+        return;
+      }
+
+      setHourlyError(null);
+      setSalaryError(null);
+
+      const grossYearly = safeAnnual;
+      const { taxes, netAnnual } = calculateAnnualTaxes(
+        grossYearly,
+        filingStatus,
+        location
+      );
+
+      const grossHourly =
+        hoursTimesWeeks > 0 ? grossYearly / hoursTimesWeeks : 0;
+      const grossMonthly = grossYearly / 12;
+      const grossBiWeekly = grossYearly / 26;
+      const grossWeekly = grossYearly / 52;
+
+      const netMonthly = netAnnual / 12;
+      const netBiWeekly = netAnnual / 26;
+      const netWeekly = netAnnual / 52;
+      const netHourly =
+        hoursTimesWeeks > 0 ? netAnnual / hoursTimesWeeks : 0;
+
+      setResult({
+        gross: {
+          hourly: grossHourly,
+          weekly: grossWeekly,
+          biWeekly: grossBiWeekly,
+          monthly: grossMonthly,
+          yearly: grossYearly
+        },
+        taxes,
+        net: {
+          yearly: netAnnual,
+          monthly: netMonthly,
+          biWeekly: netBiWeekly,
+          weekly: netWeekly,
+          hourly: netHourly
+        }
+      });
+    }
   };
+
+  const selectBaseClasses =
+    "block w-full appearance-none rounded-md border border-slate-300 bg-white pl-3 pr-10 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500";
 
   return (
     <div className="space-y-6">
-      <section aria-label="Hourly to salary inputs" className="space-y-4">
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-1">
+      <section aria-label="Income inputs" className="space-y-4">
+        <fieldset className="space-y-2">
+          <legend className="text-sm font-medium text-slate-800">
+            Calculation mode
+          </legend>
+          <div className="grid gap-2 sm:grid-cols-2">
             <label
-              htmlFor="hourlyWage"
-              className="text-sm font-medium text-slate-800"
+              className="flex cursor-pointer items-center justify-between rounded-md border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm transition hover:border-slate-400 data-[active=true]:border-emerald-500 data-[active=true]:ring-1 data-[active=true]:ring-emerald-500"
+              data-active={mode === "hourly"}
             >
-              Hourly wage
+              <div className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="calculation-mode"
+                  value="hourly"
+                  className="h-4 w-4 border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                  checked={mode === "hourly"}
+                  onChange={() => setMode("hourly")}
+                />
+                <span className="font-medium text-slate-900">
+                  Start with hourly pay
+                </span>
+              </div>
             </label>
-            <div className="flex rounded-md border border-slate-300 bg-white focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500">
-              <span className="flex items-center px-3 text-sm text-slate-500">
-                $
-              </span>
-              <input
-                id="hourlyWage"
-                type="number"
-                min={0}
-                step="0.01"
-                value={hourlyWage}
-                onChange={(event) => setHourlyWage(event.target.value)}
-                className="flex-1 rounded-r-md border-0 bg-transparent px-3 py-2 text-sm text-slate-900 outline-none"
-                placeholder="e.g. 25"
-                inputMode="decimal"
-              />
-            </div>
-            {error && (
-              <p className="text-xs text-red-600">{error}</p>
-            )}
+            <label
+              className="flex cursor-pointer items-center justify-between rounded-md border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm transition hover:border-slate-400 data-[active=true]:border-emerald-500 data-[active=true]:ring-1 data-[active=true]:ring-emerald-500"
+              data-active={mode === "salary"}
+            >
+              <div className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="calculation-mode"
+                  value="salary"
+                  className="h-4 w-4 border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                  checked={mode === "salary"}
+                  onChange={() => setMode("salary")}
+                />
+                <span className="font-medium text-slate-900">
+                  Start with annual salary
+                </span>
+              </div>
+            </label>
           </div>
+        </fieldset>
+        <div className="grid gap-4 sm:grid-cols-2">
+          {mode === "hourly" ? (
+            <div className="space-y-1">
+              <label
+                htmlFor="hourlyWage"
+                className="text-sm font-medium text-slate-800"
+              >
+                Hourly wage
+              </label>
+              <div className="flex rounded-md border border-slate-300 bg-white focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500">
+                <span className="flex items-center px-3 text-sm text-slate-500">
+                  $
+                </span>
+                <input
+                  id="hourlyWage"
+                  type="number"
+                  min={0}
+                  step="0.01"
+                  value={hourlyWage}
+                  onChange={(event) => {
+                    setHourlyWage(event.target.value);
+                    if (hourlyError) {
+                      setHourlyError(null);
+                    }
+                  }}
+                  className="flex-1 rounded-r-md border-0 bg-transparent px-3 py-2 text-sm text-slate-900 outline-none"
+                  placeholder="e.g. 25"
+                  inputMode="decimal"
+                />
+              </div>
+              {hourlyError && (
+                <p className="text-xs text-red-600">{hourlyError}</p>
+              )}
+            </div>
+          ) : (
+            <div className="space-y-1">
+              <label
+                htmlFor="annualSalary"
+                className="text-sm font-medium text-slate-800"
+              >
+                Annual salary (gross)
+              </label>
+              <div className="flex rounded-md border border-slate-300 bg-white focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500">
+                <span className="flex items-center px-3 text-sm text-slate-500">
+                  $
+                </span>
+                <input
+                  id="annualSalary"
+                  type="number"
+                  min={0}
+                  step="100"
+                  value={annualSalary}
+                  onChange={(event) => {
+                    setAnnualSalary(event.target.value);
+                    if (salaryError) {
+                      setSalaryError(null);
+                    }
+                  }}
+                  className="flex-1 rounded-r-md border-0 bg-transparent px-3 py-2 text-sm text-slate-900 outline-none"
+                  placeholder="e.g. 52000"
+                  inputMode="decimal"
+                />
+              </div>
+              {salaryError && (
+                <p className="text-xs text-red-600">{salaryError}</p>
+              )}
+            </div>
+          )}
           <div className="space-y-1">
             <label
               htmlFor="hoursPerWeek"
@@ -261,17 +588,35 @@ export default function HourlySalaryTaxCalculator() {
             >
               Filing status
             </label>
-            <select
-              id="filingStatus"
-              value={filingStatus}
-              onChange={(event) =>
-                setFilingStatus(event.target.value as FilingStatus)
-              }
-              className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
-            >
-              <option value="single">Single</option>
-              <option value="married">Married filing jointly</option>
-            </select>
+            <div className="relative">
+              <select
+                id="filingStatus"
+                value={filingStatus}
+                onChange={(event) =>
+                  setFilingStatus(event.target.value as FilingStatus)
+                }
+                className={selectBaseClasses}
+              >
+                <option value="single">Single</option>
+                <option value="married">Married filing jointly</option>
+              </select>
+              <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                <svg
+                  className="h-4 w-4 text-slate-400"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M6 8l4 4 4-4"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </span>
+            </div>
           </div>
           <div className="space-y-1">
             <label
@@ -280,19 +625,38 @@ export default function HourlySalaryTaxCalculator() {
             >
               Location
             </label>
-            <select
-              id="location"
-              value={location}
-              onChange={(event) =>
-                setLocation(event.target.value as LocationKey)
-              }
-              className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
-            >
-              <option value="us_generic">United States - Generic</option>
-              <option value="california">California</option>
-              <option value="texas">Texas</option>
-              <option value="new_york">New York</option>
-            </select>
+            <div className="relative">
+              <select
+                id="location"
+                value={location}
+                onChange={(event) =>
+                  setLocation(event.target.value as LocationKey)
+                }
+                className={selectBaseClasses}
+              >
+                {locationOptions.map((option) => (
+                  <option key={option.key} value={option.key}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+              <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+                <svg
+                  className="h-4 w-4 text-slate-400"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M6 8l4 4 4-4"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </span>
+            </div>
           </div>
         </div>
         <button
@@ -305,6 +669,8 @@ export default function HourlySalaryTaxCalculator() {
         <p className="text-xs text-slate-600">
           Tax calculations are rough estimates based on simplified U.S. federal,
           state, and FICA assumptions and may differ from your actual tax
+          situation. State income tax uses approximate effective rates for the
+          state or district you choose and will not match every individual
           situation.
         </p>
       </section>
@@ -386,6 +752,10 @@ export default function HourlySalaryTaxCalculator() {
                 <dt>Weekly</dt>
                 <dd>{formatCurrency(result.net.weekly)}</dd>
               </div>
+              <div className="flex justify-between">
+                <dt>Hourly</dt>
+                <dd>{formatCurrencyWithCents(result.net.hourly)}</dd>
+              </div>
             </dl>
             <p className="mt-3 text-xs text-emerald-900">
               Actual take-home pay depends on many factors including deductions,
@@ -398,5 +768,4 @@ export default function HourlySalaryTaxCalculator() {
     </div>
   );
 }
-
 

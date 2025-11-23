@@ -5,7 +5,7 @@ import HourlySalaryTaxCalculator from "@/components/HourlySalaryTaxCalculator";
 export const metadata: Metadata = {
   title: "Hourly to Salary to After-Tax Calculator | LifeHackTools",
   description:
-    "Convert your hourly wage into weekly, monthly, and annual salary, then estimate your after-tax income using simplified U.S. federal, state, and FICA assumptions."
+    "Start from either your hourly wage or annual salary, then estimate gross income and after-tax income using simplified U.S. federal, state, and FICA assumptions."
 };
 
 export default function HourlySalaryTaxCalculatorPage() {
@@ -35,14 +35,11 @@ export default function HourlySalaryTaxCalculatorPage() {
         </h2>
         <div className="space-y-3 text-sm text-slate-700">
           <p>
-            To convert hourly pay into salary, the calculator multiplies your
-            hourly wage by the number of hours you work per week and the number
-            of weeks you work per year. For example, an hourly rate of{" "}
-            <span className="font-medium">$25</span>, at{" "}
-            <span className="font-medium">40</span> hours per week and{" "}
-            <span className="font-medium">52</span> weeks per year, produces a
-            gross salary of roughly{" "}
-            <span className="font-medium">$52,000 per year</span>.
+            In hourly mode, the calculator multiplies your hourly wage by the
+            number of hours you work per week and the number of weeks you work
+            per year to estimate gross annual income. In salary mode, you start
+            from a gross annual salary and the tool derives an implied hourly
+            rate using your hours and weeks.
           </p>
           <p>
             Federal income tax is approximated using progressive U.S. tax
@@ -52,9 +49,9 @@ export default function HourlySalaryTaxCalculatorPage() {
           </p>
           <p>
             State income tax is modeled as a flat effective rate that depends on
-            the location you choose. Generic U.S. uses a modest flat rate,
-            California and New York use higher effective rates, and Texas is set
-            to zero to reflect the absence of state income tax on wages.
+            the U.S. state or Washington, D.C. you choose. Generic U.S. uses a
+            modest flat rate, higher-tax states use higher effective rates, and
+            states with no wage-based income tax are treated as zero.
           </p>
           <p>
             FICA combines Social Security and Medicare into a single percentage
