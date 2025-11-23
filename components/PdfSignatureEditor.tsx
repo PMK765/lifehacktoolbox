@@ -163,11 +163,31 @@ export default function PdfSignatureEditor() {
         return;
       }
 
-      const pdfjsLib = await import("pdfjs-dist/build/pdf");
-      if ("GlobalWorkerOptions" in pdfjsLib) {
-        (pdfjsLib as unknown as { GlobalWorkerOptions: { workerSrc: string } })
-          .GlobalWorkerOptions.workerSrc =
-          "//cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.js";
+      const pdfjsLib = (await import(
+        "pdfjs-dist"
+      )) as unknown as {
+        getDocument: (options: { data: ArrayBuffer }) => {
+          promise: Promise<{
+            numPages: number;
+            getPage: (pageNumber: number) => Promise<{
+              getViewport: (options: { scale: number }) => {
+                width: number;
+                height: number;
+              };
+              render: (parameters: {
+                canvasContext: CanvasRenderingContext2D;
+                viewport: { width: number; height: number };
+              }) => { promise: Promise<void> };
+            }>;
+          }>;
+        };
+        GlobalWorkerOptions?: { workerSrc: string };
+        version?: string;
+      };
+
+      if (pdfjsLib.GlobalWorkerOptions && pdfjsLib.version) {
+        pdfjsLib.GlobalWorkerOptions.workerSrc =
+          `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.mjs`;
       }
 
       const loadingTask = pdfjsLib.getDocument({ data: pdfBytes });
@@ -206,10 +226,16 @@ export default function PdfSignatureEditor() {
       }
     };
 
-    renderPage().catch(() => {
+    renderPage().catch((error) => {
       if (!cancelled) {
+        const message =
+          error instanceof Error
+            ? error.message
+            : typeof error === "string"
+            ? error
+            : "Unknown error";
         setRenderError(
-          "There was a problem rendering the PDF preview in your browser."
+          `There was a problem rendering the PDF preview: ${message}`
         );
       }
     });
@@ -388,7 +414,7 @@ export default function PdfSignatureEditor() {
       const pages = pdfDoc.getPages();
 
       let drawnSignatureImage:
-        | ReturnType<typeof pdfDoc.embedPng>
+        | Awaited<ReturnType<typeof pdfDoc.embedPng>>
         | null = null;
 
       const hasDrawnSignaturePlacement = placements.some(
@@ -455,7 +481,7 @@ export default function PdfSignatureEditor() {
       });
 
       const editedBytes = await pdfDoc.save();
-      const blob = new Blob([editedBytes], {
+      const blob = new Blob([editedBytes as unknown as BlobPart], {
         type: "application/pdf"
       });
       const url = URL.createObjectURL(blob);
