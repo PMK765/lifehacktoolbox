@@ -31,6 +31,46 @@ export default function HomePage() {
         <h2 className="text-lg font-semibold text-slate-900">Browse tools</h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           <Link
+            href="/hourly-salary-tax-calculator"
+            className="group flex flex-col justify-between rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition hover:border-slate-300 hover:shadow-md"
+          >
+            <div className="space-y-2">
+              <h3 className="text-base font-semibold text-slate-900">
+                Hourly → Salary → After-Tax
+              </h3>
+              <p className="text-sm text-slate-700">
+                Start from either your hourly wage or annual salary, then see
+                gross income and an estimated after-tax take-home breakdown.
+              </p>
+            </div>
+            <span className="mt-4 inline-flex items-center text-sm font-medium text-emerald-700">
+              Open calculator
+              <span className="ml-1 text-xs transition group-hover:translate-x-0.5">
+                →
+              </span>
+            </span>
+          </Link>
+          <Link
+            href="/random-meal-generator"
+            className="group flex flex-col justify-between rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition hover:border-slate-300 hover:shadow-md"
+          >
+            <div className="space-y-2">
+              <h3 className="text-base font-semibold text-slate-900">
+                Random Meal Generator
+              </h3>
+              <p className="text-sm text-slate-700">
+                Stuck on what to eat? Get a random meal idea filtered by diet
+                and calories.
+              </p>
+            </div>
+            <span className="mt-4 inline-flex items-center text-sm font-medium text-emerald-700">
+              Open generator
+              <span className="ml-1 text-xs transition group-hover:translate-x-0.5">
+                →
+              </span>
+            </span>
+          </Link>
+          <Link
             href="/paint-coverage-calculator"
             className="group flex flex-col justify-between rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition hover:border-slate-300 hover:shadow-md"
           >
