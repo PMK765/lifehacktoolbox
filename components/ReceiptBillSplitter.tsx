@@ -58,7 +58,11 @@ const parseCurrencyLike = (raw: string) => {
   if (!cleaned) {
     return NaN;
   }
-  const value = Number.parseFloat(cleaned);
+  const hasDot = cleaned.includes(".");
+  let value = Number.parseFloat(cleaned);
+  if (!hasDot && cleaned.length >= 3) {
+    value = value / 100;
+  }
   return Number.isFinite(value) ? value : NaN;
 };
 
@@ -132,7 +136,8 @@ const parseReceiptText = (text: string): {
       return;
     }
 
-    const isSubtotal = upper.includes("SUBTOTAL");
+    const isSubtotal =
+      upper.includes("SUBTOTAL") || upper.includes("SUB-TOTAL");
     const isTax = upper.includes("TAX");
     const isTotal =
       upper.includes("TOTAL") ||
@@ -155,7 +160,12 @@ const parseReceiptText = (text: string): {
     if (
       upper.includes("CHANGE") ||
       upper.includes("THANK") ||
-      upper.includes("TIP")
+      upper.includes("TIP") ||
+      upper.includes("CHECK") ||
+      upper.includes("TABLE") ||
+      upper.includes("GUEST") ||
+      upper.includes("CUSTOMER") ||
+      upper.includes("TIME")
     ) {
       return;
     }
@@ -173,7 +183,26 @@ const parseReceiptText = (text: string): {
     });
   });
 
-  return { items, summary };
+  let filteredItems = items;
+
+  if (filteredItems.length > 0) {
+    const prices = filteredItems
+      .map((item) => item.price)
+      .filter((price) => price > 0)
+      .sort((left, right) => left - right);
+    if (prices.length > 0) {
+      const median = prices[Math.floor(prices.length / 2)];
+      const maxReasonable =
+        median > 0 ? Math.max(median * 5, 1000) : 1000;
+      filteredItems = filteredItems.filter(
+        (item) =>
+          item.price > 0 &&
+          item.price <= maxReasonable
+      );
+    }
+  }
+
+  return { items: filteredItems, summary };
 };
 
 const computeTotals = (
