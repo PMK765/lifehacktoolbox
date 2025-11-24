@@ -357,7 +357,9 @@ export default function ReceiptBillSplitter() {
       scanProgress: 0,
       ocrText: ""
     }));
-    const { default: Tesseract } = await import("tesseract.js");
+    const { default: Tesseract } = await import(
+      "tesseract.js/dist/tesseract.min.js"
+    );
     const result = await Tesseract.recognize(state.imageUrl, "eng", {
       logger: (message) => {
         if (message.status === "recognizing text") {
