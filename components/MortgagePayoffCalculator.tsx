@@ -807,11 +807,15 @@ export default function MortgagePayoffCalculator() {
                     }
                   />
                   <Tooltip
-                    formatter={(value: number | null) =>
-                      value !== null
-                        ? currencyFormatter.format(value)
-                        : ""
-                    }
+                    formatter={(value: number | string) => {
+                      const numeric =
+                        typeof value === "number"
+                          ? value
+                          : Number.parseFloat(String(value));
+                      return Number.isFinite(numeric)
+                        ? currencyFormatter.format(numeric)
+                        : "";
+                    }}
                   />
                   <Line
                     type="monotone"
