@@ -10,9 +10,10 @@
   },
   "dependencies": {
     "next": "14.2.3",
-    "recharts": "2.12.7",
     "pdf-lib": "1.17.1",
     "pdfjs-dist": "4.4.168",
+    "recharts": "2.12.7",
+    "tesseract.js": "5.0.3",
     "react": "18.3.1",
     "react-dom": "18.3.1"
   },
