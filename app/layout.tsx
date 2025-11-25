@@ -18,7 +18,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
     <html lang="en">
       <body className="min-h-screen bg-slate-50 text-slate-900 antialiased">
         <div className="flex min-h-screen flex-col">
-          <header className="border-b bg-white">
+          <header className="border-b bg-white print:hidden">
             <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
               <Link
                 href="/"
@@ -48,7 +48,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
               {children}
             </div>
           </main>
-          <footer className="border-t bg-white">
+          <footer className="border-t bg-white print:hidden">
             <div className="mx-auto max-w-5xl px-4 py-6 text-xs text-slate-500 sm:px-6 lg:px-8">
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <span>LifeHackToolbox</span>

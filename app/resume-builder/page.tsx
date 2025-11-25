@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 export default function ResumeBuilderPage() {
   return (
     <div className="space-y-10">
-      <section className="space-y-4">
+      <section className="space-y-4 print:hidden">
         <h1 className="text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
           Free Resume Builder (No Login, ATS-Friendly)
         </h1>
@@ -38,7 +38,7 @@ export default function ResumeBuilderPage() {
       <ResumeBuilder />
       <article
         aria-label="How to use this free ATS-friendly resume builder"
-        className="space-y-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
+        className="space-y-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm print:hidden"
       >
         <h2 className="text-lg font-semibold text-slate-900">
           Build an ATS-friendly resume with no logins or paywalls

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Document, HeadingLevel, Packer, Paragraph, TextRun } from "docx";
+import { PDFDocument, StandardFonts } from "pdf-lib";
 
 type CareerTrack =
   | "software-engineer"
@@ -1232,7 +1233,6 @@ const ResumeBuilder = () => {
   const [hasHydrated, setHasHydrated] = useState(false);
   const [leftTab, setLeftTab] = useState<LeftPanelTab>("basics");
   const [skillsInput, setSkillsInput] = useState("");
-  const [includeBrandFooter, setIncludeBrandFooter] = useState(true);
   const [exportMessage, setExportMessage] = useState<string | null>(null);
   const printContainerRef = useRef<HTMLDivElement | null>(null);
 
@@ -1799,13 +1799,172 @@ const ResumeBuilder = () => {
     reader.readAsText(file);
   };
 
-  const handlePrintPdf = () => {
+  const handleDownloadPdf = async () => {
     if (typeof window === "undefined") {
       return;
     }
-    setTimeout(() => {
-      window.print();
-    }, 0);
+    if (!data) {
+      return;
+    }
+    const pdfDoc = await PDFDocument.create();
+    let page = pdfDoc.addPage();
+    let { width: pageWidth, height: pageHeight } = page.getSize();
+    const marginX = 56;
+    const marginTop = 64;
+    const marginBottom = 56;
+    let cursorY = pageHeight - marginTop;
+
+    const fontRegular = await pdfDoc.embedFont(StandardFonts.Helvetica);
+    const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+    const nameFontSize = 16;
+    const headingFontSize = 12;
+    const bodyFontSize = 10.5;
+    const bodyLineHeight = bodyFontSize * 1.4;
+
+    const maxLineWidth = pageWidth - marginX * 2;
+
+    const wrapText = (text: string, maxWidth: number, font: typeof fontRegular, size: number) => {
+      const words = text.split(/\s+/);
+      const lines: string[] = [];
+      let current = "";
+      words.forEach((word) => {
+        const candidate = current ? `${current} ${word}` : word;
+        const width = font.widthOfTextAtSize(candidate, size);
+        if (width <= maxWidth) {
+          current = candidate;
+        } else {
+          if (current) {
+            lines.push(current);
+          }
+          current = word;
+        }
+      });
+      if (current) {
+        lines.push(current);
+      }
+      if (lines.length === 0) {
+        lines.push("");
+      }
+      return lines;
+    };
+
+    const ensureSpace = (linesNeeded: number, lineHeight: number) => {
+      if (cursorY - linesNeeded * lineHeight < marginBottom) {
+        page = pdfDoc.addPage();
+        const size = page.getSize();
+        pageWidth = size.width;
+        pageHeight = size.height;
+        cursorY = pageHeight - marginTop;
+      }
+    };
+
+    const drawWrappedParagraph = (
+      text: string,
+      font: typeof fontRegular,
+      size: number,
+      lineHeight: number
+    ) => {
+      const lines = wrapText(text, maxLineWidth, font, size);
+      ensureSpace(lines.length, lineHeight);
+      lines.forEach((line) => {
+        page.drawText(line, {
+          x: marginX,
+          y: cursorY,
+          size,
+          font
+        });
+        cursorY -= lineHeight;
+      });
+      return lines.length;
+    };
+
+    const content = buildPlainText(data);
+    const allLines = content.split("\n");
+
+    allLines.forEach((line, index) => {
+      if (index === 0) {
+        const name = line.trim();
+        if (name.length === 0) {
+          return;
+        }
+        ensureSpace(2, nameFontSize * 1.5);
+        const nameWidth = fontBold.widthOfTextAtSize(name, nameFontSize);
+        const nameX = marginX + (maxLineWidth - nameWidth) / 2;
+        page.drawText(name, {
+          x: nameX,
+          y: cursorY,
+          size: nameFontSize,
+          font: fontBold
+        });
+        cursorY -= nameFontSize * 1.8;
+        return;
+      }
+
+      if (line.trim().length === 0) {
+        cursorY -= bodyLineHeight * 0.8;
+        return;
+      }
+
+      const isHeading =
+        line.toUpperCase() === line &&
+        line.length <= 24 &&
+        !line.startsWith("-") &&
+        !line.startsWith(" ");
+
+      if (isHeading) {
+        ensureSpace(1, headingFontSize * 1.8);
+        page.drawText(line, {
+          x: marginX,
+          y: cursorY,
+          size: headingFontSize,
+          font: fontBold
+        });
+        cursorY -= headingFontSize * 1.8;
+        return;
+      }
+
+      if (line.startsWith("- ")) {
+        const bulletText = line.slice(2);
+        const bulletLines = wrapText(
+          bulletText,
+          maxLineWidth - 12,
+          fontRegular,
+          bodyFontSize
+        );
+        ensureSpace(bulletLines.length, bodyLineHeight);
+        bulletLines.forEach((wrapped, indexInBullet) => {
+          const prefix = indexInBullet === 0 ? "• " : "  ";
+          page.drawText(prefix + wrapped, {
+            x: marginX,
+            y: cursorY,
+            size: bodyFontSize,
+            font: fontRegular
+          });
+          cursorY -= bodyLineHeight;
+        });
+        return;
+      }
+
+      drawWrappedParagraph(line, fontRegular, bodyFontSize, bodyLineHeight);
+    });
+
+    const pdfBytes = await pdfDoc.save();
+    const blob = new Blob([pdfBytes as unknown as BlobPart], {
+      type: "application/pdf"
+    });
+    const url = URL.createObjectURL(blob);
+    const link = window.document.createElement("a");
+    const slug = slugify(data.contact.fullName || "resume");
+    link.href = url;
+    link.download = `${slug}.pdf`;
+    window.document.body.appendChild(link);
+    link.click();
+    window.document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    setExportMessage("PDF downloaded.");
+    window.setTimeout(() => {
+      setExportMessage(null);
+    }, 2000);
   };
 
   const buildDocxDocument = (resume: ResumeData) => {
@@ -2149,17 +2308,6 @@ const ResumeBuilder = () => {
       });
     }
 
-    if (includeBrandFooter) {
-      paragraphs.push(
-        new Paragraph({
-          text: "Generated with LifeHackToolbox.com",
-          spacing: {
-            before: 240
-          }
-        })
-      );
-    }
-
     return new Document({
       sections: [
         {
@@ -2173,16 +2321,16 @@ const ResumeBuilder = () => {
     if (!data) {
       return;
     }
-    const document = buildDocxDocument(data);
-    Packer.toBlob(document).then((blob) => {
+    const docxDocument = buildDocxDocument(data);
+    Packer.toBlob(docxDocument).then((blob) => {
       const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
+      const link = window.document.createElement("a");
       const slug = slugify(data.contact.fullName || "resume");
       link.href = url;
       link.download = `${slug}.docx`;
-      document.body.appendChild(link);
+      window.document.body.appendChild(link);
       link.click();
-      document.body.removeChild(link);
+      window.document.body.removeChild(link);
       URL.revokeObjectURL(url);
       setExportMessage("DOCX downloaded.");
       window.setTimeout(() => {
@@ -2381,10 +2529,6 @@ const ResumeBuilder = () => {
         lines.push(`${item.label}: ${item.content}`);
       });
       lines.push("");
-    }
-
-    if (includeBrandFooter) {
-      lines.push("Generated with LifeHackToolbox.com");
     }
 
     return lines.join("\n");
@@ -2593,10 +2737,6 @@ const ResumeBuilder = () => {
       lines.push("");
     }
 
-    if (includeBrandFooter) {
-      lines.push("_Generated with LifeHackToolbox.com_");
-    }
-
     return lines.join("\n");
   };
 
@@ -2654,7 +2794,7 @@ const ResumeBuilder = () => {
 
   return (
     <div className="space-y-6 print:bg-white">
-      <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800">
+      <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800 print:hidden">
         <p className="font-semibold">
           Your resume stays in this browser only.
         </p>
@@ -3983,30 +4123,6 @@ const ResumeBuilder = () => {
             <div className="space-y-4">
               <div className="space-y-2">
                 <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-600">
-                  Layout and export settings
-                </h2>
-                <label className="inline-flex items-center gap-2 text-[11px] text-slate-700">
-                  <input
-                    type="checkbox"
-                    checked={includeBrandFooter}
-                    onChange={(event) =>
-                      setIncludeBrandFooter(event.target.checked)
-                    }
-                    className="h-3 w-3 rounded border-slate-300 text-emerald-600"
-                  />
-                  <span>
-                    Include a small &quot;Generated with LifeHackToolbox.com&quot;
-                    line in exports
-                  </span>
-                </label>
-                <p className="text-[11px] text-slate-500">
-                  This line is subtle and text-only and appears at the bottom of
-                  the resume in DOCX, text, and markdown exports. It does not
-                  change ATS readability.
-                </p>
-              </div>
-              <div className="space-y-2 border-t border-slate-200 pt-3">
-                <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-600">
                   Data backup
                 </h2>
                 <div className="flex flex-wrap items-center gap-3 text-[11px]">
@@ -4039,7 +4155,7 @@ const ResumeBuilder = () => {
           )}
         </section>
         <section className="space-y-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-          <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex flex-wrap items-center justify-between gap-2 print:hidden">
             <div>
               <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-700">
                 Live resume preview
@@ -4053,7 +4169,7 @@ const ResumeBuilder = () => {
             <div className="flex flex-wrap items-center gap-2 text-[11px]">
               <button
                 type="button"
-                onClick={handlePrintPdf}
+                onClick={handleDownloadPdf}
                 className="inline-flex items-center rounded-md bg-emerald-600 px-3 py-1.5 font-semibold text-white shadow-sm transition hover:bg-emerald-700"
               >
                 Download PDF
@@ -4086,19 +4202,13 @@ const ResumeBuilder = () => {
               {exportMessage}
             </p>
           )}
-          <div
-            ref={printContainerRef}
-            className="overflow-hidden rounded-lg border border-slate-200 bg-slate-100 p-3 print:border-0 print:bg-white"
-          >
-            <ResumePreview data={data} />
-            {includeBrandFooter && (
-              <div className="mt-2 text-center text-[10px] text-slate-500 print:mt-4">
-                Generated with LifeHackToolbox.com
-              </div>
-            )}
+          <div className="overflow-hidden rounded-lg border border-slate-200 bg-slate-100 p-3 print:border-0 print:bg-white">
+            <div ref={printContainerRef}>
+              <ResumePreview data={data} />
+            </div>
           </div>
           {atsSummary && (
-            <div className="space-y-2 rounded-md border border-slate-200 bg-slate-50 p-3 text-[11px] text-slate-700">
+            <div className="space-y-2 rounded-md border border-slate-200 bg-slate-50 p-3 text-[11px] text-slate-700 print:hidden">
               <p className="font-semibold text-slate-800">
                 ATS helper snapshot
               </p>
