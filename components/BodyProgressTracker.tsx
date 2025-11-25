@@ -901,7 +901,10 @@ const BodyProgressTracker = () => {
                         state.profile.unitSystem
                       )
                     ).toFixed(2)}{" "}
-                    {unitSystem === "metric" ? "kg" : "lb"}/week)
+                    {state.profile.unitSystem === "metric"
+                      ? "kg"
+                      : "lb"}
+                    /week)
                   </p>
                 )}
               </div>
