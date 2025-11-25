@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "next": "14.2.3",
+    "docx": "8.5.0",
     "diff": "5.2.0",
     "html2canvas": "1.4.1",
     "jsonc-parser": "3.2.0",
