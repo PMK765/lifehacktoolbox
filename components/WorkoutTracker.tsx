@@ -204,7 +204,17 @@ const createTodayInput = () => {
 };
 
 const formatDayOfWeek = (isoDate: string) => {
-  const date = new Date(isoDate);
+  const parts = isoDate.split("-");
+  if (parts.length !== 3) {
+    return "";
+  }
+  const year = Number.parseInt(parts[0], 10);
+  const month = Number.parseInt(parts[1], 10);
+  const day = Number.parseInt(parts[2], 10);
+  if (!Number.isFinite(year) || !Number.isFinite(month) || !Number.isFinite(day)) {
+    return "";
+  }
+  const date = new Date(year, month - 1, day);
   const formatter = new Intl.DateTimeFormat(undefined, {
     weekday: "long"
   });
@@ -222,6 +232,32 @@ const parsePositive = (value: string) => {
 
 const estimateOneRm = (weight: number, reps: number) =>
   weight * (1 + reps / 30);
+
+const parseCsvLine = (line: string) => {
+  const values: string[] = [];
+  let current = "";
+  let inQuotes = false;
+
+  for (let index = 0; index < line.length; index += 1) {
+    const character = line[index];
+    if (character === '"') {
+      if (inQuotes && line[index + 1] === '"') {
+        current += '"';
+        index += 1;
+      } else {
+        inQuotes = !inQuotes;
+      }
+    } else if (character === "," && !inQuotes) {
+      values.push(current);
+      current = "";
+    } else {
+      current += character;
+    }
+  }
+
+  values.push(current);
+  return values;
+};
 
 const WorkoutTracker = () => {
   const [state, setState] = useState<WorkoutTrackerState>({
@@ -250,6 +286,12 @@ const WorkoutTracker = () => {
     useState<string>("");
 
   const summaryFrameRef = useRef<HTMLDivElement | null>(null);
+  const [importMessage, setImportMessage] = useState<string | null>(
+    null
+  );
+  const [importError, setImportError] = useState<string | null>(
+    null
+  );
 
   const [hasHydrated, setHasHydrated] = useState(false);
 
@@ -706,6 +748,192 @@ const WorkoutTracker = () => {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+  };
+
+  const handleImportCsv = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setImportMessage(null);
+    setImportError(null);
+    const file = event.target.files?.[0];
+    if (!file) {
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (loadEvent) => {
+      const result = loadEvent.target?.result;
+      if (typeof result !== "string") {
+        setImportError("Could not read file contents.");
+        return;
+      }
+      const text = result.replace(/\r\n/g, "\n");
+      const lines = text
+        .split("\n")
+        .map((line) => line.trim())
+        .filter((line) => line.length > 0);
+      if (lines.length === 0) {
+        setImportError("File was empty.");
+        return;
+      }
+      const header = lines[0];
+      const expectedHeader =
+        "date,day_of_week,workout_name,exercise_name,exercise_type,set_number,weight,reps,distance,duration_seconds,notes,workout_notes";
+      if (header !== expectedHeader) {
+        setImportError(
+          "This file does not match the workout CSV format exported from LifeHackToolbox."
+        );
+        return;
+      }
+      type WorkoutKey = string;
+      const workoutMap = new Map<
+        WorkoutKey,
+        {
+          date: string;
+          dayOfWeek: string;
+          workoutName: string;
+          notes?: string;
+          exercises: Map<
+            string,
+            {
+              name: string;
+              type: ExerciseType;
+              sets: WorkoutSet[];
+            }
+          >;
+        }
+      >();
+
+      for (let index = 1; index < lines.length; index += 1) {
+        const line = lines[index];
+        if (!line) {
+          continue;
+        }
+        const fields = parseCsvLine(line);
+        if (fields.length < 12) {
+          setImportError(
+            "One of the rows in this file is missing fields. Only CSVs exported from this workout tracker can be imported."
+          );
+          return;
+        }
+        const [
+          date,
+          dayOfWeek,
+          workoutNameRaw,
+          exerciseNameRaw,
+          exerciseTypeRaw,
+          setNumberRaw,
+          weightRaw,
+          repsRaw,
+          distanceRaw,
+          durationRaw,
+          notesRaw,
+          workoutNotesRaw
+        ] = fields;
+        const workoutName = workoutNameRaw.replace(/""/g, '"').replace(/^"|"$/g, "");
+        const exerciseName = exerciseNameRaw.replace(/""/g, '"').replace(/^"|"$/g, "");
+        const notes = notesRaw
+          ? notesRaw.replace(/""/g, '"').replace(/^"|"$/g, "")
+          : "";
+        const workoutNotes = workoutNotesRaw
+          ? workoutNotesRaw.replace(/""/g, '"').replace(/^"|"$/g, "")
+          : "";
+        const workoutKey: WorkoutKey = `${date}|||${workoutName}`;
+        const exerciseKey = `${exerciseName}|||${exerciseTypeRaw}`;
+
+        if (!workoutMap.has(workoutKey)) {
+          workoutMap.set(workoutKey, {
+            date,
+            dayOfWeek,
+            workoutName,
+            notes: workoutNotes || undefined,
+            exercises: new Map()
+          });
+        }
+        const workoutEntry = workoutMap.get(workoutKey);
+        if (!workoutEntry) {
+          continue;
+        }
+        if (!workoutEntry.exercises.has(exerciseKey)) {
+          workoutEntry.exercises.set(exerciseKey, {
+            name: exerciseName,
+            type: (exerciseTypeRaw as ExerciseType) ?? "strength",
+            sets: []
+          });
+        }
+        const exerciseEntry = workoutEntry.exercises.get(
+          exerciseKey
+        );
+        if (!exerciseEntry) {
+          continue;
+        }
+        const weightNumeric = parsePositive(weightRaw);
+        const repsNumeric = parsePositive(repsRaw);
+        const distanceNumeric = parsePositive(distanceRaw);
+        const durationNumeric = parsePositive(durationRaw);
+        const set: WorkoutSet = {
+          id: createId(),
+          weight: Number.isFinite(weightNumeric)
+            ? weightNumeric
+            : null,
+          reps: Number.isFinite(repsNumeric)
+            ? repsNumeric
+            : null,
+          distance: Number.isFinite(distanceNumeric)
+            ? distanceNumeric
+            : null,
+          durationSeconds: Number.isFinite(durationNumeric)
+            ? durationNumeric
+            : null,
+          notes: notes || undefined
+        };
+        exerciseEntry.sets.push(set);
+      }
+
+      const importedWorkouts: WorkoutEntry[] = [];
+      workoutMap.forEach((value) => {
+        const exercises: WorkoutExerciseInstance[] = [];
+        value.exercises.forEach((exerciseValue) => {
+          const preset = EXERCISE_PRESETS.find(
+            (presetEntry) =>
+              presetEntry.name.toLowerCase() ===
+              exerciseValue.name.toLowerCase()
+          );
+          exercises.push({
+            id: createId(),
+            exerciseId: preset ? preset.id : `custom-${createId()}`,
+            customName: preset ? undefined : exerciseValue.name,
+            type: exerciseValue.type,
+            sets: exerciseValue.sets
+          });
+        });
+        importedWorkouts.push({
+          id: createId(),
+          date: value.date,
+          dayOfWeek: value.dayOfWeek,
+          workoutName: value.workoutName,
+          notes: value.notes,
+          exercises
+        });
+      });
+
+      if (importedWorkouts.length === 0) {
+        setImportError(
+          "No workout rows were found in this file. Make sure you selected a CSV exported from this workout tracker."
+        );
+        return;
+      }
+
+      setState({
+        workouts: importedWorkouts,
+        selectedWorkoutId:
+          importedWorkouts[importedWorkouts.length - 1].id
+      });
+      setImportMessage(
+        "Imported workouts from CSV. This replaced any workouts that were previously saved in this browser."
+      );
+      event.target.value = "";
+    };
+    reader.readAsText(file);
   };
 
   const handleExportImage = async () => {
@@ -1189,6 +1417,19 @@ const WorkoutTracker = () => {
               History &amp; progress
             </h2>
             <div className="flex flex-wrap items-center gap-2">
+              <div className="flex flex-col gap-1 text-[10px] text-slate-600">
+                <label className="inline-flex items-center gap-2">
+                  <span className="inline-flex items-center rounded-md border border-slate-300 bg-white px-2 py-1 text-[11px] font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50">
+                    Import workouts from CSV
+                  </span>
+                  <input
+                    type="file"
+                    accept=".csv,text/csv"
+                    onChange={handleImportCsv}
+                    className="hidden"
+                  />
+                </label>
+              </div>
               <button
                 type="button"
                 onClick={handleExportCsv}
@@ -1210,6 +1451,16 @@ const WorkoutTracker = () => {
               </button>
             </div>
           </div>
+          {importMessage && (
+            <p className="text-[11px] text-emerald-700">
+              {importMessage}
+            </p>
+          )}
+          {importError && (
+            <p className="text-[11px] text-red-600">
+              {importError}
+            </p>
+          )}
           <div className="grid gap-4 md:grid-cols-[minmax(0,1.15fr)_minmax(0,1.4fr)]">
             <div className="space-y-3">
               <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-600">
@@ -1314,7 +1565,9 @@ const WorkoutTracker = () => {
                                       ? `${set.distance} distance`
                                       : ""}
                                     {set.durationSeconds !==
-                                    null
+                                      null &&
+                                    set.durationSeconds !==
+                                      undefined
                                       ? `, ${(set.durationSeconds / 60).toFixed(
                                           1
                                         )} min`
