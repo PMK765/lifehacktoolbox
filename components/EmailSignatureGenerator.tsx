@@ -510,7 +510,7 @@ const EmailSignatureGenerator = () => {
                 type="text"
                 value={inputs.jobTitle}
                 onChange={(event) =>
-                 .handleInputChange("jobTitle", event.target.value)
+                  handleInputChange("jobTitle", event.target.value)
                 }
                 className={inputClasses}
               />
