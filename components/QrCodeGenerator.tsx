@@ -157,7 +157,7 @@ const QrCodeGenerator = () => {
       },
       scale: 1,
       width: size
-    } as QRCode.QRCodeToDataURLOptions & QRCode.QRCodeRenderersOptions;
+    };
 
     QRCode.toCanvas(current, value, options, (error) => {
       if (error) {
