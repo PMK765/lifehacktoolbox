@@ -2,6 +2,8 @@
 
 import { useMemo, useState } from "react";
 import {
+  Cell,
+  Legend,
   Line,
   LineChart,
   Pie,
@@ -338,6 +340,10 @@ export default function MortgagePayoffCalculator() {
     state.termMode
   ]);
 
+  const [selectedPaymentIndex, setSelectedPaymentIndex] = useState<
+    number | null
+  >(null);
+
   const combinedChartData = useMemo(() => {
     if (!calculation) {
       return [];
@@ -353,6 +359,8 @@ export default function MortgagePayoffCalculator() {
       const extraRow = extra?.rows[index];
       data.push({
         name: `#${index + 1}`,
+        paymentIndex: index,
+        dateLabel: standardRow?.dateLabel ?? "",
         standardBalance:
           standardRow?.remainingBalance ?? null,
         extraBalance: extraRow?.remainingBalance ?? null
@@ -381,8 +389,53 @@ export default function MortgagePayoffCalculator() {
   const selectBaseClasses =
     "block w-full appearance-none rounded-md border border-slate-300 bg-white pl-3 pr-10 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500";
 
+  const printGeneratedOn = new Date();
+
+  const lifetimePrincipal =
+    calculation?.principal ?? 0;
+  const lifetimeInterest =
+    calculation?.standard.summary.totalInterest ?? 0;
+  const lifetimeOther =
+    (calculation?.otherMonthly ?? 0) *
+    (calculation?.standard.summary.months ?? 0);
+  const lifetimeTotal =
+    lifetimePrincipal + lifetimeInterest + lifetimeOther;
+
+  const effectivePaymentIndex =
+    selectedPaymentIndex !== null &&
+    calculation &&
+    selectedPaymentIndex >= 0 &&
+    selectedPaymentIndex < calculation.standard.rows.length
+      ? selectedPaymentIndex
+      : 0;
+
+  const selectedPaymentRow =
+    calculation?.standard.rows[effectivePaymentIndex] ?? null;
+
   return (
     <div className="space-y-8">
+      <div className="hidden border-b border-slate-200 pb-3 print:block">
+        <p className="text-sm font-semibold text-slate-900">
+          LifeHackToolbox.com · Mortgage Payoff &amp; Amortization Report
+        </p>
+        <p className="text-xs text-slate-600">
+          Generated on{" "}
+          {printGeneratedOn.toLocaleDateString(undefined, {
+            year: "numeric",
+            month: "long",
+            day: "numeric"
+          })}
+        </p>
+      </div>
+      <div className="flex justify-end print:hidden">
+        <button
+          type="button"
+          onClick={() => window.print()}
+          className="inline-flex items-center rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50"
+        >
+          Export / Print as PDF
+        </button>
+      </div>
       <section
         aria-label="Mortgage inputs"
         className="space-y-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
@@ -854,7 +907,22 @@ export default function MortgagePayoffCalculator() {
             </p>
             <div className="h-64 w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={combinedChartData}>
+                <LineChart
+                  data={combinedChartData}
+                  onClick={(chartEvent: unknown) => {
+                    const event = chartEvent as {
+                      activeTooltipIndex?: number | null;
+                    };
+                    if (
+                      typeof event.activeTooltipIndex === "number" &&
+                      event.activeTooltipIndex >= 0
+                    ) {
+                      setSelectedPaymentIndex(
+                        event.activeTooltipIndex
+                      );
+                    }
+                  }}
+                >
                   <XAxis
                     dataKey="name"
                     tick={{ fontSize: 10 }}
@@ -877,6 +945,23 @@ export default function MortgagePayoffCalculator() {
                       return Number.isFinite(numeric)
                         ? currencyFormatter.format(numeric)
                         : "";
+                    }}
+                    labelFormatter={(
+                      label: string | number,
+                      payload
+                    ) => {
+                      if (!payload || payload.length === 0) {
+                        return String(label);
+                      }
+                      const first = payload[0];
+                      const dateLabel =
+                        first && first.payload
+                          ? first.payload.dateLabel
+                          : "";
+                      if (dateLabel) {
+                        return `${String(label)} · ${dateLabel}`;
+                      }
+                      return String(label);
                     }}
                   />
                   <Line
@@ -901,50 +986,177 @@ export default function MortgagePayoffCalculator() {
               </ResponsiveContainer>
             </div>
             {calculation.otherMonthly && calculation.otherMonthly > 0 && (
-              <div className="mt-6 grid gap-4 md:grid-cols-2">
-                <div className="space-y-1">
-                  <h3 className="text-sm font-semibold text-slate-900">
-                    Lifetime cost breakdown
-                  </h3>
-                  <p className="text-xs text-slate-600">
-                    This shows how much of your total housing cost comes from principal,
-                    interest, and other monthly expenses such as property tax and
-                    insurance.
-                  </p>
-                </div>
-                <div className="h-56 w-full">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={[
-                          {
-                            name: "Principal",
-                            value: calculation.principal
-                          },
-                          {
-                            name: "Interest",
-                            value:
-                              calculation.standard.summary
-                                .totalInterest
-                          },
-                          {
-                            name: "Other",
-                            value:
-                              (calculation.otherMonthly ?? 0) *
-                              calculation.standard.summary.months
+              <div className="mt-6 grid gap-6 md:grid-cols-2">
+                <div className="space-y-3">
+                  <div className="space-y-1">
+                    <h3 className="text-sm font-semibold text-slate-900">
+                      Lifetime cost breakdown
+                    </h3>
+                    <p className="text-xs text-slate-600">
+                      This shows how much of your total housing cost comes from principal,
+                      interest, and other monthly expenses such as property tax and
+                      insurance over the full life of the loan.
+                    </p>
+                  </div>
+                  <div className="h-56 w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={[
+                            {
+                              name: "Principal",
+                              value: lifetimePrincipal
+                            },
+                            {
+                              name: "Interest",
+                              value: lifetimeInterest
+                            },
+                            {
+                              name: "Other",
+                              value: lifetimeOther
+                            }
+                          ]}
+                          dataKey="value"
+                          nameKey="name"
+                          outerRadius={70}
+                          paddingAngle={2}
+                          labelLine={false}
+                          label={({ name, percent }) =>
+                            `${name} ${(percent * 100).toFixed(0)}%`
                           }
-                        ]}
-                        dataKey="value"
-                        nameKey="name"
-                        outerRadius={70}
-                        paddingAngle={2}
-                      />
-                    </PieChart>
-                  </ResponsiveContainer>
+                        >
+                          <Cell fill="#0f766e" />
+                          <Cell fill="#f97316" />
+                          <Cell fill="#64748b" />
+                        </Pie>
+                        <Legend
+                          verticalAlign="bottom"
+                          align="center"
+                          wrapperStyle={{
+                            fontSize: 11
+                          }}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div className="space-y-1 text-xs text-slate-700">
+                    <p>
+                      Principal:{" "}
+                      {currencyFormatter.format(lifetimePrincipal)} (
+                      {lifetimeTotal > 0
+                        ? ((lifetimePrincipal / lifetimeTotal) * 100).toFixed(
+                            1
+                          )
+                        : "0.0"}
+                      %)
+                    </p>
+                    <p>
+                      Interest:{" "}
+                      {currencyFormatter.format(lifetimeInterest)} (
+                      {lifetimeTotal > 0
+                        ? ((lifetimeInterest / lifetimeTotal) * 100).toFixed(
+                            1
+                          )
+                        : "0.0"}
+                      %)
+                    </p>
+                    <p>
+                      Other:{" "}
+                      {currencyFormatter.format(lifetimeOther)} (
+                      {lifetimeTotal > 0
+                        ? ((lifetimeOther / lifetimeTotal) * 100).toFixed(1)
+                        : "0.0"}
+                      %)
+                    </p>
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <div className="space-y-1">
+                    <h3 className="text-sm font-semibold text-slate-900">
+                      Selected payment breakdown
+                    </h3>
+                    <p className="text-xs text-slate-600">
+                      Click any point on the balance chart above to see how that payment
+                      splits between principal, interest, and other monthly housing costs.
+                    </p>
+                    {selectedPaymentRow && (
+                      <p className="text-xs font-medium text-slate-700">
+                        Showing payment #{selectedPaymentRow.paymentNumber} ·{" "}
+                        {selectedPaymentRow.dateLabel}
+                      </p>
+                    )}
+                  </div>
+                  <div className="h-56 w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={
+                            selectedPaymentRow
+                              ? [
+                                  {
+                                    name: "Principal",
+                                    value: selectedPaymentRow.principal
+                                  },
+                                  {
+                                    name: "Interest",
+                                    value: selectedPaymentRow.interest
+                                  },
+                                  {
+                                    name: "Other",
+                                    value: calculation.otherMonthly ?? 0
+                                  }
+                                ]
+                              : []
+                          }
+                          dataKey="value"
+                          nameKey="name"
+                          outerRadius={70}
+                          paddingAngle={2}
+                          labelLine={false}
+                          label={({ name, percent }) =>
+                            `${name} ${(percent * 100).toFixed(0)}%`
+                          }
+                        >
+                          <Cell fill="#0f766e" />
+                          <Cell fill="#f97316" />
+                          <Cell fill="#64748b" />
+                        </Pie>
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                  {selectedPaymentRow && (
+                    <div className="space-y-1 text-xs text-slate-700">
+                      <p>
+                        Principal this payment:{" "}
+                        {currencyFormatter.format(
+                          selectedPaymentRow.principal
+                        )}
+                      </p>
+                      <p>
+                        Interest this payment:{" "}
+                        {currencyFormatter.format(
+                          selectedPaymentRow.interest
+                        )}
+                      </p>
+                      <p>
+                        Other monthly costs:{" "}
+                        {currencyFormatter.format(
+                          calculation.otherMonthly ?? 0
+                        )}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
           </section>
+          <div className="mt-6 hidden border-t border-slate-200 pt-3 text-xs text-slate-600 print:block">
+            <p>
+              Report generated with LifeHackToolbox.com ·{" "}
+              {printGeneratedOn.getFullYear()}
+            </p>
+            <p>Visit https://lifehacktoolbox.com for more tools.</p>
+          </div>
           <section
             aria-label="Amortization table"
             className="space-y-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
