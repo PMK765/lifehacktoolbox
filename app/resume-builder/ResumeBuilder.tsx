@@ -65,6 +65,7 @@ type ResumeExperienceItem = {
   location: string;
   startDate: string;
   endDate: string;
+  bulletText: string;
   bullets: string[];
 };
 
@@ -1243,8 +1244,18 @@ const ResumeBuilder = () => {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw) as ResumeData;
-      setData(parsed);
-      setSkillsInput(parsed.skills.join(", "));
+      const patched: ResumeData = {
+        ...parsed,
+        experience: (parsed.experience ?? []).map((item) => ({
+          ...item,
+          bulletText:
+            "bulletText" in item && typeof (item as any).bulletText === "string"
+              ? (item as any).bulletText
+              : (item.bullets ?? []).join("\n")
+        }))
+      };
+      setData(patched);
+      setSkillsInput(patched.skills.join(", "));
     } else {
       const initial = createDefaultResumeData();
       setData(initial);
@@ -1380,6 +1391,7 @@ const ResumeBuilder = () => {
       location: "",
       startDate: "",
       endDate: "",
+      bulletText: "",
       bullets: []
     };
     setData((previous) => {
@@ -1422,15 +1434,42 @@ const ResumeBuilder = () => {
     });
   };
 
-  const handleExperienceBulletsChange = (id: string, value: string) => {
-    const raw = value.split("\n");
-    const bullets = raw
-      .map((entry) => normalizeWhitespace(entry))
-      .filter((entry) => entry.length > 0);
-    updateExperienceItem(id, (item) => ({
-      ...item,
-      bullets
-    }));
+  const handleExperienceBulletChange = (
+    id: string,
+    index: number,
+    value: string
+  ) => {
+    updateExperienceItem(id, (item) => {
+      const bullets = [...item.bullets];
+      bullets[index] = value;
+      return {
+        ...item,
+        bulletText: bullets.join("\n"),
+        bullets
+      };
+    });
+  };
+
+  const addExperienceBullet = (id: string) => {
+    updateExperienceItem(id, (item) => {
+      const bullets = [...item.bullets, ""];
+      return {
+        ...item,
+        bulletText: bullets.join("\n"),
+        bullets
+      };
+    });
+  };
+
+  const removeExperienceBullet = (id: string, index: number) => {
+    updateExperienceItem(id, (item) => {
+      const bullets = item.bullets.filter((_, position) => position !== index);
+      return {
+        ...item,
+        bulletText: bullets.join("\n"),
+        bullets
+      };
+    });
   };
 
   const addEducationItem = () => {
@@ -1535,8 +1574,8 @@ const ResumeBuilder = () => {
   const handleProjectBulletsChange = (id: string, value: string) => {
     const raw = value.split("\n");
     const bullets = raw
-      .map((entry) => normalizeWhitespace(entry))
-      .filter((entry) => entry.length > 0);
+      .map((entry) => entry.replace(/\r/g, ""))
+      .filter((entry) => entry.trim().length > 0);
     updateProjectItem(id, (item) => ({
       ...item,
       bullets
@@ -1693,8 +1732,8 @@ const ResumeBuilder = () => {
   const handleVolunteerBulletsChange = (id: string, value: string) => {
     const raw = value.split("\n");
     const bullets = raw
-      .map((entry) => normalizeWhitespace(entry))
-      .filter((entry) => entry.length > 0);
+      .map((entry) => entry.replace(/\r/g, ""))
+      .filter((entry) => entry.trim().length > 0);
     updateVolunteerItem(id, (item) => ({
       ...item,
       bullets
@@ -3223,17 +3262,50 @@ const ResumeBuilder = () => {
                         <label className="text-[11px] font-medium text-slate-700">
                           Bullet points
                         </label>
-                        <textarea
-                          value={item.bullets.join("\n")}
-                          onChange={(event) =>
-                            handleExperienceBulletsChange(
-                              item.id,
-                              event.target.value
-                            )
-                          }
-                          className={`${inputClasses} min-h-[80px]`}
-                          placeholder="One bullet per line focusing on impact and results."
-                        />
+                        <div className="space-y-2">
+                          {item.bullets.map((bullet, index) => (
+                            <div
+                              key={index}
+                              className="flex items-center gap-2"
+                            >
+                              <input
+                                type="text"
+                                value={bullet}
+                                onChange={(event) =>
+                                  handleExperienceBulletChange(
+                                    item.id,
+                                    index,
+                                    event.target.value
+                                  )
+                                }
+                                className={inputClasses}
+                                placeholder="Achievement or result for this role"
+                              />
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  removeExperienceBullet(item.id, index)
+                                }
+                                className="rounded-md border border-red-200 bg-white px-2 py-1 text-[11px] font-medium text-red-600 shadow-sm transition hover:border-red-400 hover:bg-red-50"
+                              >
+                                Remove
+                              </button>
+                            </div>
+                          ))}
+                          {item.bullets.length === 0 && (
+                            <p className="text-[11px] text-slate-500">
+                              Add 2–6 short bullets that describe impact, not
+                              just responsibilities.
+                            </p>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => addExperienceBullet(item.id)}
+                            className="inline-flex items-center rounded-md border border-slate-300 bg-white px-3 py-1.5 text-[11px] font-semibold text-slate-800 shadow-sm transition hover:border-slate-400 hover:bg-slate-50"
+                          >
+                            Add bullet
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ))}
