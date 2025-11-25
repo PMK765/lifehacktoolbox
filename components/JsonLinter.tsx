@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { parse, ParseErrorCode, ParseError } from "jsonc-parser";
+import { parse, type ParseError } from "jsonc-parser";
 
 type ValidationStatus = "idle" | "valid" | "invalid";
 
@@ -30,19 +30,20 @@ const describeParseError = (
 ): string => {
   const { line, column } = computeLineAndColumn(text, error.offset);
   let message = "Invalid JSON.";
-  if (error.error === ParseErrorCode.PropertyNameExpected) {
+  const code = error.error as number;
+  if (code === 3) {
     message = "Property name expected.";
-  } else if (error.error === ParseErrorCode.ValueExpected) {
+  } else if (code === 4) {
     message = "Value expected.";
-  } else if (error.error === ParseErrorCode.ColonExpected) {
+  } else if (code === 5) {
     message = "Colon ':' expected between key and value.";
-  } else if (error.error === ParseErrorCode.CommaExpected) {
+  } else if (code === 6) {
     message = "Comma ',' expected between items.";
-  } else if (error.error === ParseErrorCode.CloseBraceExpected) {
+  } else if (code === 7) {
     message = "Closing '}' expected.";
-  } else if (error.error === ParseErrorCode.CloseBracketExpected) {
+  } else if (code === 8) {
     message = "Closing ']' expected.";
-  } else if (error.error === ParseErrorCode.EndOfFileExpected) {
+  } else if (code === 9) {
     message = "Unexpected end of input.";
   }
   return `${message} (line ${line}, column ${column})`;
