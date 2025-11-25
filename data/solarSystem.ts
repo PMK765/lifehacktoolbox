@@ -6,7 +6,8 @@ export type PlanetId =
   | "jupiter"
   | "saturn"
   | "uranus"
-  | "neptune";
+  | "neptune"
+  | "pluto";
 
 export type PlanetInfo = {
   id: PlanetId;
@@ -151,6 +152,21 @@ export const planets: PlanetInfo[] = [
     textureImage: "/planets/neptune.png",
     description:
       "The most distant known major planet, Neptune is an ice giant with supersonic winds and a deep blue hue driven by methane in its atmosphere."
+  },
+  {
+    id: "pluto",
+    name: "Pluto",
+    radiusKm: 1188,
+    orbitalRadiusAu: 39.48,
+    orbitalPeriodDays: 90560,
+    rotationPeriodHours: -153.3,
+    massKg: 1.31e22,
+    averageTempK: 44,
+    axialTiltDegrees: 119.6,
+    color: "#a5b4fc",
+    textureImage: "/planets/pluto.png",
+    description:
+      "Once considered the ninth planet and now classified as a dwarf planet, Pluto follows an elongated, tilted orbit on the icy frontier of the Solar System."
   }
 ];
 
