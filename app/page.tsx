@@ -329,6 +329,46 @@ export default function HomePage() {
               </span>
             </span>
           </Link>
+          <Link
+            href="/json-linter"
+            className="group flex flex-col justify-between rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition hover:border-slate-300 hover:shadow-md"
+          >
+            <div className="space-y-2">
+              <h3 className="text-base font-semibold text-slate-900">
+                JSON Linter &amp; Formatter
+              </h3>
+              <p className="text-sm text-slate-700">
+                Validate and format JSON locally, then copy or download the result
+                with no data sent to a server.
+              </p>
+            </div>
+            <span className="mt-4 inline-flex items-center text-sm font-medium text-emerald-700">
+              Open tool
+              <span className="ml-1 text-xs transition group-hover:translate-x-0.5">
+                →
+              </span>
+            </span>
+          </Link>
+          <Link
+            href="/diff-checker"
+            className="group flex flex-col justify-between rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition hover:border-slate-300 hover:shadow-md"
+          >
+            <div className="space-y-2">
+              <h3 className="text-base font-semibold text-slate-900">
+                Diff Checker
+              </h3>
+              <p className="text-sm text-slate-700">
+                Compare two blocks of text or code, highlight additions and deletions,
+                and download a simple diff.
+              </p>
+            </div>
+            <span className="mt-4 inline-flex items-center text-sm font-medium text-emerald-700">
+              Open tool
+              <span className="ml-1 text-xs transition group-hover:translate-x-0.5">
+                →
+              </span>
+            </span>
+          </Link>
         </div>
       </section>
     </div>
