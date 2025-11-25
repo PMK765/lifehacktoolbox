@@ -5,7 +5,7 @@ import ReceiptBillSplitter from "@/components/ReceiptBillSplitter";
 export const metadata: Metadata = {
   title: "Receipt Photo Bill Splitter | LifeHackToolbox",
   description:
-    "Upload a photo of your restaurant receipt, automatically detect items and prices with OCR, and split the bill by person with tax and tip included."
+    "Quickly enter receipt items, assign them to people, and split the bill with tax and tip included. Everything runs in your browser."
 };
 
 export default function ReceiptBillSplitterPage() {
@@ -16,9 +16,9 @@ export default function ReceiptBillSplitterPage() {
           Receipt Photo Bill Splitter
         </h1>
         <p className="max-w-2xl text-base text-slate-700">
-          Upload a picture of your receipt, let the tool detect items with OCR, and then
-          split the bill between friends with tax and tip included. Everything runs in
-          your browser, so your receipt never leaves your device.
+          Type in the items from a receipt, pick who ordered what, and split the bill
+          between friends with tax and tip included. Everything runs in your browser, so
+          no receipt images are uploaded anywhere.
         </p>
       </section>
       <ReceiptBillSplitter />
@@ -39,12 +39,10 @@ export default function ReceiptBillSplitterPage() {
             covering more than their share.
           </p>
           <p>
-            This tool is built to make that process less painful. You take a quick photo
-            or screenshot of the receipt, and the app uses on-device OCR to pull out
-            line items and prices. From there you can clean up any misread text, adjust
-            categories, and decide whether to split everything evenly or assign each item
-            to specific people. The goal is to make it easy to answer, &quot;Who owes
-            what?&quot; without a long back-and-forth in your group chat.
+            This tool is built to make that process less painful. You enter each dish or
+            drink once, mark who it belongs to (or who is sharing it), and the app
+            handles the tax and tip math. The goal is to make it easy to answer,
+            &quot;Who owes what?&quot; without a long back-and-forth in your group chat.
           </p>
           <h3 className="text-sm font-semibold text-slate-900">
             Why tax and tip matter when splitting fairly
@@ -56,16 +54,6 @@ export default function ReceiptBillSplitterPage() {
             of the pre-tax total is, then allocates tax and tip proportionally. That
             way, someone who only ordered a small dish is not paying the same add-on
             amounts as someone who had multiple entrees and drinks.
-          </p>
-          <h3 className="text-sm font-semibold text-slate-900">
-            OCR that runs entirely in your browser
-          </h3>
-          <p>
-            Many receipt-splitting apps upload your photo to a server for processing.
-            This tool instead uses browser-based OCR, so the receipt never leaves your
-            device. That is useful if you care about privacy or you are dealing with
-            work-related expenses that you do not want stored by a third party. You
-            still have full control to edit or delete items if the OCR makes a mistake.
           </p>
           <h3 className="text-sm font-semibold text-slate-900">
             When a bill splitter is especially handy

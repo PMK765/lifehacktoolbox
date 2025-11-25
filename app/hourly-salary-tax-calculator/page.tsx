@@ -3,7 +3,8 @@ import Link from "next/link";
 import HourlySalaryTaxCalculator from "@/components/HourlySalaryTaxCalculator";
 
 export const metadata: Metadata = {
-  title: "Hourly to Salary to After-Tax Calculator | LifeHackTools",
+  title:
+    "Hourly to Salary Paycheck & After-Tax Calculator | LifeHackToolbox",
   description:
     "Start from either your hourly wage or annual salary, then estimate gross income and after-tax income using simplified U.S. federal, state, and FICA assumptions."
 };
@@ -13,7 +14,7 @@ export default function HourlySalaryTaxCalculatorPage() {
     <div className="space-y-10">
       <section className="space-y-4">
         <h1 className="text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
-          Hourly to Salary to After-Tax Calculator
+          Hourly to Salary Paycheck &amp; After-Tax Calculator
         </h1>
         <p className="max-w-2xl text-base text-slate-700">
           Enter your hourly wage, hours, and U.S. location to see your gross

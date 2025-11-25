@@ -4,6 +4,8 @@ import { useMemo, useState } from "react";
 import {
   Line,
   LineChart,
+  Pie,
+  PieChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -48,6 +50,7 @@ type CalculatorState = {
   extraOneTimeInput: string;
   extraOneTimeMonthInput: string;
   activeScheduleView: CalculationMode;
+  otherMonthlyInput: string;
 };
 
 const createTodayDateInput = () => {
@@ -172,7 +175,8 @@ export default function MortgagePayoffCalculator() {
     extraMonthlyInput: "0",
     extraOneTimeInput: "",
     extraOneTimeMonthInput: "12",
-    activeScheduleView: "standard"
+    activeScheduleView: "standard",
+    otherMonthlyInput: ""
   });
 
   const [validationError, setValidationError] = useState<string | null>(null);
@@ -285,6 +289,14 @@ export default function MortgagePayoffCalculator() {
     const hasAnyExtras =
       extraMonthly > 0 || extraOneTime > 0;
 
+    const otherMonthlyRaw = parsePositiveNumber(
+      state.otherMonthlyInput
+    );
+    const otherMonthly =
+      Number.isFinite(otherMonthlyRaw) && otherMonthlyRaw > 0
+        ? otherMonthlyRaw
+        : 0;
+
     const extra = hasAnyExtras
       ? buildSchedule(
           principal,
@@ -309,7 +321,8 @@ export default function MortgagePayoffCalculator() {
       extraOneTime,
       hasAnyExtras,
       standard,
-      extra
+      extra,
+      otherMonthly
     };
   }, [
     parsedStartDate,
@@ -321,6 +334,7 @@ export default function MortgagePayoffCalculator() {
     state.loanAmountInput,
     state.overridePaymentEnabled,
     state.paymentOverrideInput,
+    state.otherMonthlyInput,
     state.termMode
   ]);
 
@@ -658,6 +672,33 @@ export default function MortgagePayoffCalculator() {
               />
             </div>
           </div>
+          <div className="space-y-1">
+            <label
+              htmlFor="otherMonthly"
+              className="text-xs font-medium text-slate-700"
+            >
+              Property tax, insurance, HOA, other monthly costs
+            </label>
+            <input
+              id="otherMonthly"
+              type="number"
+              min={0}
+              step="10"
+              value={state.otherMonthlyInput}
+              onChange={(event) =>
+                setState((previous) => ({
+                  ...previous,
+                  otherMonthlyInput: event.target.value
+                }))
+              }
+              className={inputBaseClasses}
+              placeholder="e.g. 600"
+            />
+            <p className="text-[11px] text-slate-500">
+              Use this for escrowed property tax, homeowner&apos;s insurance, HOA dues,
+              or other recurring housing costs that are part of your monthly payment.
+            </p>
+          </div>
         </div>
         {validationError && (
           <p className="text-xs font-medium text-red-600">
@@ -688,6 +729,16 @@ export default function MortgagePayoffCalculator() {
                 </div>
                 <div>
                   <p className="text-xs uppercase tracking-wide text-slate-500">
+                    Other monthly costs
+                  </p>
+                  <p className="text-base font-semibold">
+                    {currencyFormatter.format(
+                      calculation.otherMonthly ?? 0
+                    )}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs uppercase tracking-wide text-slate-500">
                     Total interest
                   </p>
                   <p className="text-base font-semibold">
@@ -698,11 +749,22 @@ export default function MortgagePayoffCalculator() {
                 </div>
                 <div>
                   <p className="text-xs uppercase tracking-wide text-slate-500">
-                    Total paid
+                    Total paid (principal + interest)
                   </p>
                   <p className="text-base font-semibold">
                     {currencyFormatter.format(
                       calculation.standard.summary.totalPaid
+                    )}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs uppercase tracking-wide text-slate-500">
+                    Est. monthly out-of-pocket
+                  </p>
+                  <p className="text-base font-semibold">
+                    {currencyFormatter.format(
+                      calculation.basePayment +
+                        (calculation.otherMonthly ?? 0)
                     )}
                   </p>
                 </div>
@@ -838,6 +900,50 @@ export default function MortgagePayoffCalculator() {
                 </LineChart>
               </ResponsiveContainer>
             </div>
+            {calculation.otherMonthly && calculation.otherMonthly > 0 && (
+              <div className="mt-6 grid gap-4 md:grid-cols-2">
+                <div className="space-y-1">
+                  <h3 className="text-sm font-semibold text-slate-900">
+                    Lifetime cost breakdown
+                  </h3>
+                  <p className="text-xs text-slate-600">
+                    This shows how much of your total housing cost comes from principal,
+                    interest, and other monthly expenses such as property tax and
+                    insurance.
+                  </p>
+                </div>
+                <div className="h-56 w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={[
+                          {
+                            name: "Principal",
+                            value: calculation.principal
+                          },
+                          {
+                            name: "Interest",
+                            value:
+                              calculation.standard.summary
+                                .totalInterest
+                          },
+                          {
+                            name: "Other",
+                            value:
+                              (calculation.otherMonthly ?? 0) *
+                              calculation.standard.summary.months
+                          }
+                        ]}
+                        dataKey="value"
+                        nameKey="name"
+                        outerRadius={70}
+                        paddingAngle={2}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            )}
           </section>
           <section
             aria-label="Amortization table"

@@ -36,11 +36,11 @@ export default function HomePage() {
           >
             <div className="space-y-2">
               <h3 className="text-base font-semibold text-slate-900">
-                Hourly → Salary → After-Tax
+                Hourly to Salary Paycheck &amp; After-Tax
               </h3>
               <p className="text-sm text-slate-700">
-                Start from either your hourly wage or annual salary, then see
-                gross income and an estimated after-tax take-home breakdown.
+                Convert between hourly and salary pay and see your estimated take-home
+                pay after taxes by state.
               </p>
             </div>
             <span className="mt-4 inline-flex items-center text-sm font-medium text-emerald-700">
@@ -254,11 +254,12 @@ export default function HomePage() {
           >
             <div className="space-y-2">
               <h3 className="text-base font-semibold text-slate-900">
-                Receipt Photo Bill Splitter
+                Receipt Bill Splitter
               </h3>
               <p className="text-sm text-slate-700">
-                Snap a picture of a receipt, pick who ordered what, and split the bill
-                with tax and tip included. Everything runs on your device.
+                Enter receipt items, pick who ordered what (or who is sharing), and let
+                the tool split the bill with tax and tip included. Everything runs on
+                your device.
               </p>
             </div>
             <span className="mt-4 inline-flex items-center text-sm font-medium text-emerald-700">

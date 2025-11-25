@@ -25,12 +25,7 @@ type Person = {
 type SplitMode = "even" | "items";
 
 type CalculatorState = {
-  imageUrl: string | null;
-  ocrText: string;
-  isScanning: boolean;
-  scanProgress: number;
   items: ReceiptItem[];
-  summary: ReceiptSummary;
   people: Person[];
   splitMode: SplitMode;
   taxInput: string;
@@ -264,11 +259,6 @@ const computeTotals = (
   const manualTax = parseCurrencyLike(state.taxInput);
   if (Number.isFinite(manualTax) && manualTax >= 0) {
     totalTax = manualTax;
-  } else if (
-    state.summary.taxFromReceipt !== undefined &&
-    state.summary.taxFromReceipt >= 0
-  ) {
-    totalTax = state.summary.taxFromReceipt;
   } else {
     const taxRate = parseCurrencyLike(state.taxRateInput);
     if (Number.isFinite(taxRate) && taxRate > 0) {
@@ -338,12 +328,7 @@ const buildShareSummaryText = (totals: PersonTotals[]) => {
 
 export default function ReceiptBillSplitter() {
   const [state, setState] = useState<CalculatorState>({
-    imageUrl: null,
-    ocrText: "",
-    isScanning: false,
-    scanProgress: 0,
     items: [],
-    summary: {},
     people: [
       { id: createId(), name: "Person 1" },
       { id: createId(), name: "Person 2" }
@@ -357,73 +342,6 @@ export default function ReceiptBillSplitter() {
   });
 
   const [shareCopied, setShareCopied] = useState(false);
-
-  const handleImageChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = event.target.files?.[0];
-    if (!file) {
-      setState((previous) => ({
-        ...previous,
-        imageUrl: null
-      }));
-      return;
-    }
-    const objectUrl = URL.createObjectURL(file);
-    setState((previous) => ({
-      ...previous,
-      imageUrl: objectUrl
-    }));
-  };
-
-  const handleScan = async () => {
-    if (!state.imageUrl) {
-      return;
-    }
-    setState((previous) => ({
-      ...previous,
-      isScanning: true,
-      scanProgress: 0,
-      ocrText: ""
-    }));
-    const { default: Tesseract } = await import(
-      "tesseract.js/dist/tesseract.min.js"
-    );
-    const result = await Tesseract.recognize(state.imageUrl, "eng", {
-      logger: (message) => {
-        if (message.status === "recognizing text") {
-          setState((previous) => ({
-            ...previous,
-            scanProgress: message.progress ?? previous.scanProgress
-          }));
-        }
-      }
-    });
-    const rawText = result.data.text;
-    const parsed = parseReceiptText(rawText);
-
-    setState((previous) => {
-      const assignments: Record<string, string[]> = {};
-      parsed.items.forEach((item) => {
-        assignments[item.id] = previous.people.map(
-          (person) => person.id
-        );
-      });
-      return {
-        ...previous,
-        isScanning: false,
-        scanProgress: 1,
-        ocrText: rawText,
-        items: parsed.items,
-        summary: parsed.summary,
-        taxInput:
-          parsed.summary.taxFromReceipt !== undefined
-            ? String(parsed.summary.taxFromReceipt)
-            : previous.taxInput,
-        assignments
-      };
-    });
-  };
 
   const handleItemChange = (
     id: string,
@@ -591,70 +509,147 @@ export default function ReceiptBillSplitter() {
   return (
     <div className="space-y-8">
       <section
-        aria-label="Upload receipt"
+        aria-label="People and split mode"
         className="space-y-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
       >
         <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-700">
-          Step 1 · Upload receipt photo
+          Step 1 · People &amp; split mode
         </h2>
-        <p className="text-xs text-slate-600">
-          Choose a clear photo or screenshot of your receipt. The image stays in your
-          browser and is never uploaded to a server.
-        </p>
         <div className="grid gap-4 md:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
           <div className="space-y-2">
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleImageChange}
-              className="block w-full text-sm text-slate-800 file:mr-4 file:rounded-md file:border-0 file:bg-emerald-50 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-emerald-700 hover:file:bg-emerald-100"
-            />
-            {state.imageUrl && (
-              <div className="mt-2 overflow-hidden rounded-md border border-slate-200 bg-slate-50">
-                <img
-                  src={state.imageUrl}
-                  alt="Uploaded receipt preview"
-                  className="mx-auto max-h-80 w-auto object-contain"
-                />
-              </div>
-            )}
-          </div>
-          <div className="space-y-3">
-            <button
-              type="button"
-              onClick={handleScan}
-              disabled={!state.imageUrl || state.isScanning}
-              className={`inline-flex w-full items-center justify-center rounded-md px-4 py-2 text-sm font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 ${
-                !state.imageUrl || state.isScanning
-                  ? "cursor-not-allowed bg-slate-200 text-slate-500"
-                  : "bg-emerald-600 text-white hover:bg-emerald-700"
-              }`}
+            <p className="text-xs font-medium text-slate-700">
+              Number of people
+            </p>
+            <select
+              value={state.people.length}
+              onChange={(event) => {
+                const count = Number.parseInt(event.target.value, 10);
+                if (!Number.isFinite(count) || count < 1) {
+                  return;
+                }
+                setState((previous) => {
+                  const people: Person[] = [];
+                  for (let index = 0; index < count; index += 1) {
+                    const existing = previous.people[index];
+                    people.push(
+                      existing ?? {
+                        id: createId(),
+                        name: `Person ${index + 1}`
+                      }
+                    );
+                  }
+                  const assignments: Record<string, string[]> = {};
+                  Object.entries(previous.assignments).forEach(
+                    ([itemId, assigned]) => {
+                      const filtered = assigned.filter((personId) =>
+                        people.some((person) => person.id === personId)
+                      );
+                      assignments[itemId] =
+                        filtered.length > 0
+                          ? filtered
+                          : people.map((person) => person.id);
+                    }
+                  );
+                  return {
+                    ...previous,
+                    people,
+                    assignments
+                  };
+                });
+              }}
+              className={selectBaseClasses}
             >
-              {state.isScanning ? "Scanning receipt…" : "Scan receipt"}
-            </button>
-            {state.isScanning && (
-              <div className="space-y-1">
-                <div className="h-1 w-full overflow-hidden rounded-full bg-slate-200">
-                  <div
-                    className="h-1 bg-emerald-500"
-                    style={{
-                      width: `${Math.round(
-                        state.scanProgress * 100
-                      )}%`
-                    }}
+              {Array.from({ length: 19 }).map((_, index) => {
+                const value = index + 2;
+                return (
+                  <option key={value} value={value}>
+                    {value}
+                  </option>
+                );
+              })}
+            </select>
+            <p className="text-xs text-slate-600">
+              Adjust the count, then rename each person below to match your group.
+            </p>
+          </div>
+          <div className="space-y-2">
+            <p className="text-xs font-medium text-slate-700">
+              Split mode
+            </p>
+            <div className="inline-flex rounded-md border border-slate-300 bg-slate-50 text-xs">
+              <button
+                type="button"
+                onClick={() =>
+                  setState((previous) => ({
+                    ...previous,
+                    splitMode: "even"
+                  }))
+                }
+                className={`px-3 py-1 ${
+                  state.splitMode === "even"
+                    ? "rounded-l-md bg-white font-semibold text-slate-900"
+                    : "text-slate-700"
+                }`}
+              >
+                Even split
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  setState((previous) => ({
+                    ...previous,
+                    splitMode: "items"
+                  }))
+                }
+                className={`px-3 py-1 ${
+                  state.splitMode === "items"
+                    ? "rounded-r-md bg-white font-semibold text-slate-900"
+                    : "text-slate-700"
+                }`}
+              >
+                Split by item
+              </button>
+            </div>
+            <p className="text-xs text-slate-600">
+              Even split divides everything equally. Item-based split lets you assign
+              each line item to one or more people.
+            </p>
+          </div>
+        </div>
+        <div className="mt-4 grid gap-3 md:grid-cols-2">
+          <div className="space-y-2">
+            <p className="text-xs font-medium text-slate-700">
+              People
+            </p>
+            <div className="space-y-2">
+              {state.people.map((person) => (
+                <div
+                  key={person.id}
+                  className="flex items-center gap-2"
+                >
+                  <input
+                    type="text"
+                    value={person.name}
+                    onChange={(event) =>
+                      handlePersonChange(
+                        person.id,
+                        "name",
+                        event.target.value
+                      )
+                    }
+                    className={inputBaseClasses}
                   />
+                  <button
+                    type="button"
+                    onClick={() => handleRemovePerson(person.id)}
+                    disabled={state.people.length <= 1}
+                    className="inline-flex items-center rounded-md border border-red-200 bg-white px-2 py-1 text-[11px] font-medium text-red-600 shadow-sm transition hover:border-red-400 hover:bg-red-50 disabled:cursor-not-allowed disabled:border-slate-200 disabled:text-slate-400"
+                  >
+                    Remove
+                  </button>
                 </div>
-                <p className="text-xs text-slate-600">
-                  OCR runs entirely in your browser. Large photos may take a few seconds.
-                </p>
-              </div>
-            )}
-            {!state.isScanning && !state.items.length && state.ocrText && (
-              <p className="text-xs text-amber-700">
-                No line items were detected automatically. You can add items manually
-                below.
-              </p>
-            )}
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -664,7 +659,7 @@ export default function ReceiptBillSplitter() {
       >
         <div className="flex items-center justify-between gap-2">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-700">
-            Step 2 · Review items
+            Step 2 · Items
           </h2>
           <button
             type="button"
@@ -759,7 +754,7 @@ export default function ReceiptBillSplitter() {
                     colSpan={4}
                     className="px-3 py-3 text-center text-xs text-slate-500"
                   >
-                    No items yet. Scan a receipt or add items manually.
+                    No items yet. Add each dish, drink, or shared item with a price.
                   </td>
                 </tr>
               )}
@@ -769,36 +764,7 @@ export default function ReceiptBillSplitter() {
         <div className="grid gap-4 text-xs text-slate-700 md:grid-cols-3">
           <div className="space-y-1">
             <p className="font-semibold text-slate-800">
-              Receipt summary (parsed)
-            </p>
-            <p>
-              Subtotal:{" "}
-              {state.summary.subtotalFromReceipt !== undefined
-                ? currencyFormatter.format(
-                    state.summary.subtotalFromReceipt
-                  )
-                : "—"}
-            </p>
-            <p>
-              Tax:{" "}
-              {state.summary.taxFromReceipt !== undefined
-                ? currencyFormatter.format(
-                    state.summary.taxFromReceipt
-                  )
-                : "—"}
-            </p>
-            <p>
-              Total:{" "}
-              {state.summary.totalFromReceipt !== undefined
-                ? currencyFormatter.format(
-                    state.summary.totalFromReceipt
-                  )
-                : "—"}
-            </p>
-          </div>
-          <div className="space-y-1">
-            <p className="font-semibold text-slate-800">
-              Working totals (from items)
+              Working totals
             </p>
             <p>
               Item subtotal:{" "}
