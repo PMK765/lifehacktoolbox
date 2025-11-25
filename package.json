@@ -13,6 +13,7 @@
     "diff": "5.2.0",
     "html2canvas": "1.4.1",
     "jsonc-parser": "3.2.0",
+    "qrcode": "1.5.3",
     "pdf-lib": "1.17.1",
     "pdfjs-dist": "4.4.168",
     "recharts": "2.12.7",
