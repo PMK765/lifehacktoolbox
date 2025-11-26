@@ -672,6 +672,42 @@ export default function HomePage() {
               </Link>
             </div>
           </section>
+          <section
+            aria-labelledby="design-visual-heading"
+            className="space-y-3"
+          >
+            <div className="flex items-baseline justify-between gap-2">
+              <h3
+                id="design-visual-heading"
+                className="text-sm font-semibold uppercase tracking-wide text-slate-600"
+              >
+                Design &amp; visual tools
+              </h3>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              <Link
+                href="/color-palette-extractor"
+                className="group flex flex-col justify-between rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition hover:border-slate-300 hover:shadow-md"
+              >
+                <div className="space-y-2">
+                  <h4 className="text-base font-semibold text-slate-900">
+                    Color Picker &amp; Palette Extractor
+                  </h4>
+                  <p className="text-sm text-slate-700">
+                    Upload any image to extract a full color palette with HEX,
+                    RGB, and HSL values. Click to pick colors and export
+                    palettes as PNG or JSON.
+                  </p>
+                </div>
+                <span className="mt-4 inline-flex items-center text-sm font-medium text-emerald-700">
+                  Open tool
+                  <span className="ml-1 text-xs transition group-hover:translate-x-0.5">
+                    →
+                  </span>
+                </span>
+              </Link>
+            </div>
+          </section>
           <section aria-labelledby="creative-fun-heading" className="space-y-3">
             <div className="flex items-baseline justify-between gap-2">
               <h3
