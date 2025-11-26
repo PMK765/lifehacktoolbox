@@ -69,7 +69,7 @@ const SolarSystemVisualizer = () => {
         setFrame((previous) => previous + 1);
       }
 
-      rafIdRef.ref = requestAnimationFrame(step);
+      rafIdRef.current = requestAnimationFrame(step);
     };
 
     rafIdRef.current = requestAnimationFrame(step);
