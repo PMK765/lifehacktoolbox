@@ -613,15 +613,15 @@ export const baseForId = (id: NumberBaseId): number => {
 
 export const allowedDigitPatternForBase = (base: NumberBaseId): RegExp => {
   if (base === "binary") {
-    return /^[+-]?[01]+$/u;
+    return /^[+-]?[01]+$/;
   }
   if (base === "octal") {
-    return /^[+-]?[0-7]+$/u;
+    return /^[+-]?[0-7]+$/;
   }
   if (base === "decimal") {
-    return /^[+-]?[0-9]+$/u;
+    return /^[+-]?[0-9]+$/;
   }
-  return /^[+-]?[0-9A-F]+$/u;
+  return /^[+-]?[0-9A-F]+$/;
 };
 
 export const convertNumberBase = (
