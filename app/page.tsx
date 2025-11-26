@@ -102,6 +102,27 @@ export default function HomePage() {
                   </span>
                 </span>
               </Link>
+              <Link
+                href="/rent-vs-buy-calculator"
+                className="group flex flex-col justify-between rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition hover:border-slate-300 hover:shadow-md"
+              >
+                <div className="space-y-2">
+                  <h4 className="text-base font-semibold text-slate-900">
+                    Rent vs Buy Calculator
+                  </h4>
+                  <p className="text-sm text-slate-700">
+                    Compare renting versus buying a home with full monthly cost
+                    breakdown, net worth over time, and a clear break-even year
+                    under your assumptions.
+                  </p>
+                </div>
+                <span className="mt-4 inline-flex items-center text-sm font-medium text-emerald-700">
+                  Open calculator
+                  <span className="ml-1 text-xs transition group-hover:translate-x-0.5">
+                    →
+                  </span>
+                </span>
+              </Link>
             </div>
           </section>
           <section aria-labelledby="home-life-heading" className="space-y-3">
