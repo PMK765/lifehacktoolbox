@@ -40,24 +40,6 @@ const formatRgbString = (rgb: RGB): string =>
 const formatHslString = (hsl: HSL): string =>
   `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`;
 
-const getInitialColorCount = (): number => {
-  if (typeof window === "undefined") {
-    return 6;
-  }
-  const stored = window.localStorage.getItem(
-    STORAGE_COLOR_COUNT_KEY
-  );
-  if (!stored) {
-    return 6;
-  }
-  const parsed = Number(stored);
-  if (Number.isNaN(parsed)) {
-    return 6;
-  }
-  const clamped = Math.max(3, Math.min(12, Math.round(parsed)));
-  return clamped;
-};
-
 const ColorPaletteExtractor = () => {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [imageName, setImageName] = useState<string | undefined>();
@@ -65,9 +47,7 @@ const ColorPaletteExtractor = () => {
     width: number;
     height: number;
   } | null>(null);
-  const [colorCount, setColorCount] = useState<number>(
-    getInitialColorCount()
-  );
+  const [colorCount, setColorCount] = useState<number>(6);
   const [palette, setPalette] = useState<PaletteColor[]>([]);
   const [selectedColor, setSelectedColor] = useState<ColorFormats | null>(
     null
@@ -83,6 +63,27 @@ const ColorPaletteExtractor = () => {
   const imageRef = useRef<HTMLImageElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const paletteFrameRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    const stored = window.localStorage.getItem(
+      STORAGE_COLOR_COUNT_KEY
+    );
+    if (!stored) {
+      return;
+    }
+    const parsed = Number(stored);
+    if (Number.isNaN(parsed)) {
+      return;
+    }
+    const clamped = Math.max(
+      3,
+      Math.min(12, Math.round(parsed))
+    );
+    setColorCount(clamped);
+  }, []);
 
   useEffect(() => {
     if (typeof window === "undefined") {

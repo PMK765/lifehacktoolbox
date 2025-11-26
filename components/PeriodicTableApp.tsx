@@ -743,23 +743,19 @@ const PeriodicTableApp = () => {
                             </span>
                           )}
                         </div>
-                        <div className="mt-0.5 flex items-baseline justify-between gap-1">
-                          <span className="text-base font-semibold tracking-tight sm:text-lg">
+                        <div className="mt-1 flex flex-col items-stretch gap-0.5">
+                          <span className="text-base font-semibold tracking-tight text-slate-900 sm:text-lg">
                             {element.symbol}
                           </span>
-                          <span className="text-[10px]">
+                          <span className="text-[10px] font-mono text-slate-900">
                             {element.atomicMass.toFixed(2)}
                           </span>
                         </div>
-                        <div className="mt-auto flex items-center justify-between gap-1 text-[9px] text-slate-900/90">
-                          <span className="truncate">
-                            {element.name.length > 9
-                              ? `${element.name.slice(0, 9)}…`
-                              : element.name}
-                          </span>
-                          <span className="truncate text-right">
+                        <div className="mt-auto space-y-0.5 text-[8px] leading-tight text-slate-900">
+                          <div className="truncate">{element.name}</div>
+                          <div className="truncate opacity-80">
                             {element.category}
-                          </span>
+                          </div>
                         </div>
                       </button>
                     );

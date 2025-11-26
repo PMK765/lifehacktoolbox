@@ -79,17 +79,17 @@ const ColorPaletteExtractorPage = () => {
         <p>
           Designers and developers frequently move between different color
           formats. <strong>HEX</strong> codes like{" "}
-          <code className="rounded bg-slate-900 px-1 py-0.5 text-xs">
+          <code className="rounded bg-slate-100 px-1 py-0.5 text-xs font-mono text-slate-900">
             #1F2933
           </code>{" "}
           are compact and widely used in CSS, design tools, and style guides.
           <strong> RGB</strong> values such as{" "}
-          <code className="rounded bg-slate-900 px-1 py-0.5 text-xs">
+          <code className="rounded bg-slate-100 px-1 py-0.5 text-xs font-mono text-slate-900">
             rgb(31, 41, 51)
           </code>{" "}
           make it clear how much red, green, and blue a color contains.{" "}
           <strong>HSL</strong> values like{" "}
-          <code className="rounded bg-slate-900 px-1 py-0.5 text-xs">
+          <code className="rounded bg-slate-100 px-1 py-0.5 text-xs font-mono text-slate-900">
             hsl(210, 25%, 16%)
           </code>{" "}
           describe a color by its hue, saturation, and lightness, which is
@@ -143,7 +143,7 @@ const ColorPaletteExtractorPage = () => {
           design handoff tools, or build custom scripts that synchronize
           palettes across multiple projects.
         </p>
-        <h3 className="text-lg font-semibold text-slate-50">
+        <h3 className="text-lg font-semibold text-slate-900">
           Privacy: everything runs in your browser
         </h3>
         <p>
