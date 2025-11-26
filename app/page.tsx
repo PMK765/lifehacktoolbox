@@ -530,6 +530,27 @@ export default function HomePage() {
             </span>
           </Link>
           <Link
+            href="/unit-converter"
+            className="group flex flex-col justify-between rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition hover:border-slate-300 hover:shadow-md"
+          >
+            <div className="space-y-2">
+              <h3 className="text-base font-semibold text-slate-900">
+                Universal Unit Converter
+              </h3>
+              <p className="text-sm text-slate-700">
+                Convert between units of length, weight, volume, temperature,
+                speed, area, pressure, data, and more in a clean, mobile-friendly
+                interface.
+              </p>
+            </div>
+            <span className="mt-4 inline-flex items-center text-sm font-medium text-emerald-700">
+              Open tool
+              <span className="ml-1 text-xs transition group-hover:translate-x-0.5">
+                →
+              </span>
+            </span>
+          </Link>
+          <Link
             href="/dna-sequence-explorer"
             className="group flex flex-col justify-between rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition hover:border-slate-300 hover:shadow-md"
           >
