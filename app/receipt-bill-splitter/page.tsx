@@ -3,7 +3,7 @@ import Link from "next/link";
 import ReceiptBillSplitter from "@/components/ReceiptBillSplitter";
 
 export const metadata: Metadata = {
-  title: "Receipt Photo Bill Splitter | LifeHackToolbox",
+  title: "Receipt Bill Splitter | LifeHackToolbox",
   description:
     "Quickly enter receipt items, assign them to people, and split the bill with tax and tip included. Everything runs in your browser."
 };
@@ -13,7 +13,7 @@ export default function ReceiptBillSplitterPage() {
     <div className="space-y-10">
       <section className="space-y-4">
         <h1 className="text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
-          Receipt Photo Bill Splitter
+          Receipt Bill Splitter
         </h1>
         <p className="max-w-2xl text-base text-slate-700">
           Type in the items from a receipt, pick who ordered what, and split the bill

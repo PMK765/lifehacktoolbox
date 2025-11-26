@@ -563,8 +563,8 @@ export const formatNumber = (value: number): string => {
     return value.toExponential(3);
   }
   const fixed = value.toFixed(4);
-  const trimmedTrailingZeros = fixed.replace(/(\.\d*?[1-9])0+$/u, "$1");
-  const trimmedDot = trimmedTrailingZeros.replace(/\.0+$/u, "");
+  const trimmedTrailingZeros = fixed.replace(/(\.\d*?[1-9])0+$/, "$1");
+  const trimmedDot = trimmedTrailingZeros.replace(/\.0+$/, "");
   return trimmedDot;
 };
 
