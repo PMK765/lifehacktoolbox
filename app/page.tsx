@@ -312,6 +312,26 @@ export default function HomePage() {
                   </span>
                 </span>
               </Link>
+              <Link
+                href="/baby-genetic-predictor"
+                className="group flex flex-col justify-between rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition hover:border-slate-300 hover:shadow-md"
+              >
+                <div className="space-y-2">
+                  <h4 className="text-base font-semibold text-slate-900">
+                    Baby Genetic Predictor
+                  </h4>
+                  <p className="text-sm text-slate-700">
+                    Predict your baby&apos;s height, eye color, and hair color with beautiful
+                    data-driven visualizations.
+                  </p>
+                </div>
+                <span className="mt-4 inline-flex items-center text-sm font-medium text-emerald-700">
+                  Open predictor
+                  <span className="ml-1 text-xs transition group-hover:translate-x-0.5">
+                    →
+                  </span>
+                </span>
+              </Link>
             </div>
           </section>
           <section

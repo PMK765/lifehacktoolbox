@@ -384,7 +384,7 @@ const ColorPaletteExtractor = () => {
                     className="h-full w-full object-contain"
                   />
                   <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950/20 via-transparent to-slate-900/10" />
-                  <p class_name="pointer-events-none absolute bottom-2 right-2 rounded-full bg-slate-900/70 px-2.5 py-1 text-[10px] text-slate-200">
+                  <p className="pointer-events-none absolute bottom-2 right-2 rounded-full bg-slate-900/70 px-2.5 py-1 text-[10px] text-slate-200">
                     Click to pick a color
                   </p>
                 </div>

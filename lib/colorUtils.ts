@@ -37,7 +37,7 @@ export const rgbToHex = (rgb: RGB): string => {
 };
 
 export const hexToRgb = (hex: string): RGB | null => {
-  const trimmed = hex.trim().replace(/^#/u, "");
+  const trimmed = hex.trim().replace(/^#/, "");
   if (trimmed.length !== 6) {
     return null;
   }
