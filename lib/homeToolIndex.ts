@@ -7,6 +7,34 @@ export type HomeToolEntry = {
 
 export const HOME_TOOL_INDEX: HomeToolEntry[] = [
   {
+    href: "/function-grapher",
+    title: "Function Grapher (Interactive)",
+    description:
+      "Graph functions like x^2 and sin(x) with pan/zoom, intercepts, a value table, shareable links, and PNG export.",
+    category: "Math & converters"
+  },
+  {
+    href: "/matrix-calculator",
+    title: "Matrix Calculator & Visualizer",
+    description:
+      "Matrix multiplication, transpose, determinant, inverse, and solving Ax=b with keyboard-friendly editing plus JSON/CSV export.",
+    category: "Math & converters"
+  },
+  {
+    href: "/probability-simulator",
+    title: "Probability Simulator (Coin/Dice/Cards)",
+    description:
+      "Compare theoretical probability vs simulation with histograms and convergence charts, plus CSV export and branded PNG snapshots.",
+    category: "Math & converters"
+  },
+  {
+    href: "/statistics-explorer",
+    title: "Statistics Explorer (Charts + Summary)",
+    description:
+      "Paste numbers or upload CSV to compute mean/median/std dev, quartiles, IQR outliers, plus histogram and box plot with CSV and PNG exports.",
+    category: "Math & converters"
+  },
+  {
     href: "/hourly-salary-tax-calculator",
     title: "Hourly to Salary Paycheck & After-Tax",
     description:

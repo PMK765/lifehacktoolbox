@@ -32,6 +32,98 @@ export default function HomePage() {
         <h2 className="text-lg font-semibold text-slate-900">Browse tools</h2>
         <HomeToolSearch />
         <div className="space-y-8">
+          <section aria-labelledby="math-converters-heading" className="space-y-3">
+            <div className="flex items-baseline justify-between gap-2">
+              <h3
+                id="math-converters-heading"
+                className="text-sm font-semibold uppercase tracking-wide text-slate-600"
+              >
+                Math &amp; converters
+              </h3>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              <Link
+                href="/function-grapher"
+                className="group flex flex-col justify-between rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition hover:border-slate-300 hover:shadow-md"
+              >
+                <div className="space-y-2">
+                  <h4 className="text-base font-semibold text-slate-900">
+                    Function Grapher (Interactive)
+                  </h4>
+                  <p className="text-sm text-slate-700">
+                    Graph functions like x^2 and sin(x) with pan/zoom, intercepts, a value
+                    table, shareable links, and PNG export.
+                  </p>
+                </div>
+                <span className="mt-4 inline-flex items-center text-sm font-medium text-emerald-700">
+                  Open grapher
+                  <span className="ml-1 text-xs transition group-hover:translate-x-0.5">
+                    →
+                  </span>
+                </span>
+              </Link>
+              <Link
+                href="/matrix-calculator"
+                className="group flex flex-col justify-between rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition hover:border-slate-300 hover:shadow-md"
+              >
+                <div className="space-y-2">
+                  <h4 className="text-base font-semibold text-slate-900">
+                    Matrix Calculator &amp; Visualizer
+                  </h4>
+                  <p className="text-sm text-slate-700">
+                    Matrix multiplication, transpose, determinant, inverse, and solving
+                    Ax=b with keyboard-friendly editing plus JSON/CSV export.
+                  </p>
+                </div>
+                <span className="mt-4 inline-flex items-center text-sm font-medium text-emerald-700">
+                  Open matrix tool
+                  <span className="ml-1 text-xs transition group-hover:translate-x-0.5">
+                    →
+                  </span>
+                </span>
+              </Link>
+              <Link
+                href="/probability-simulator"
+                className="group flex flex-col justify-between rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition hover:border-slate-300 hover:shadow-md"
+              >
+                <div className="space-y-2">
+                  <h4 className="text-base font-semibold text-slate-900">
+                    Probability Simulator (Coin/Dice/Cards)
+                  </h4>
+                  <p className="text-sm text-slate-700">
+                    Compare theoretical probability vs simulation with histograms and
+                    convergence charts, plus CSV export and branded PNG snapshots.
+                  </p>
+                </div>
+                <span className="mt-4 inline-flex items-center text-sm font-medium text-emerald-700">
+                  Open simulator
+                  <span className="ml-1 text-xs transition group-hover:translate-x-0.5">
+                    →
+                  </span>
+                </span>
+              </Link>
+              <Link
+                href="/statistics-explorer"
+                className="group flex flex-col justify-between rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition hover:border-slate-300 hover:shadow-md"
+              >
+                <div className="space-y-2">
+                  <h4 className="text-base font-semibold text-slate-900">
+                    Statistics Explorer (Charts + Summary)
+                  </h4>
+                  <p className="text-sm text-slate-700">
+                    Paste numbers or upload CSV to compute mean/median/std dev, quartiles,
+                    IQR outliers, plus histogram and box plot with CSV and PNG exports.
+                  </p>
+                </div>
+                <span className="mt-4 inline-flex items-center text-sm font-medium text-emerald-700">
+                  Open stats tool
+                  <span className="ml-1 text-xs transition group-hover:translate-x-0.5">
+                    →
+                  </span>
+                </span>
+              </Link>
+            </div>
+          </section>
           <section aria-labelledby="money-bills-heading" className="space-y-3">
             <div className="flex items-baseline justify-between gap-2">
               <h3
