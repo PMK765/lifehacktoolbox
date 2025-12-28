@@ -35,6 +35,34 @@ export const HOME_TOOL_INDEX: HomeToolEntry[] = [
     category: "Math & converters"
   },
   {
+    href: "/molecular-weight-calculator",
+    title: "Molecular Weight (Molar Mass) Calculator",
+    description:
+      "Parse formulas like Ca(OH)2 and Al2(SO4)3 to calculate total molar mass and percent composition with exports to JSON and CSV.",
+    category: "School, study & classroom tools"
+  },
+  {
+    href: "/cell-structure-explorer",
+    title: "Cell Structure Explorer (Interactive)",
+    description:
+      "Click organelles on an interactive animal cell diagram, search terms, and quiz yourself with a study mode that tracks your best score.",
+    category: "School, study & classroom tools"
+  },
+  {
+    href: "/punnett-square-generator",
+    title: "Punnett Square Generator (Simple + Advanced)",
+    description:
+      "Generate single-gene and dihybrid Punnett squares with genotype and phenotype ratios, steps, plus exports to PNG, CSV, and JSON.",
+    category: "School, study & classroom tools"
+  },
+  {
+    href: "/algorithm-visualizer",
+    title: "Algorithm Visualizer (Sorting + Searching)",
+    description:
+      "Visualize sorting algorithms and binary search with step-by-step playback, speed control, and counters for comparisons and swaps.",
+    category: "School, study & classroom tools"
+  },
+  {
     href: "/hourly-salary-tax-calculator",
     title: "Hourly to Salary Paycheck & After-Tax",
     description:

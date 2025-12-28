@@ -586,6 +586,86 @@ export default function HomePage() {
                 </span>
               </Link>
               <Link
+                href="/molecular-weight-calculator"
+                className="group flex flex-col justify-between rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition hover:border-slate-300 hover:shadow-md"
+              >
+                <div className="space-y-2">
+                  <h4 className="text-base font-semibold text-slate-900">
+                    Molecular Weight (Molar Mass) Calculator
+                  </h4>
+                  <p className="text-sm text-slate-700">
+                    Parse formulas like Ca(OH)2 and Al2(SO4)3 to calculate total molar mass
+                    and percent composition with exports to JSON and CSV.
+                  </p>
+                </div>
+                <span className="mt-4 inline-flex items-center text-sm font-medium text-emerald-700">
+                  Open calculator
+                  <span className="ml-1 text-xs transition group-hover:translate-x-0.5">
+                    →
+                  </span>
+                </span>
+              </Link>
+              <Link
+                href="/cell-structure-explorer"
+                className="group flex flex-col justify-between rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition hover:border-slate-300 hover:shadow-md"
+              >
+                <div className="space-y-2">
+                  <h4 className="text-base font-semibold text-slate-900">
+                    Cell Structure Explorer (Interactive)
+                  </h4>
+                  <p className="text-sm text-slate-700">
+                    Click organelles on an interactive animal cell diagram, search terms,
+                    and quiz yourself with a study mode that tracks your best score.
+                  </p>
+                </div>
+                <span className="mt-4 inline-flex items-center text-sm font-medium text-emerald-700">
+                  Open explorer
+                  <span className="ml-1 text-xs transition group-hover:translate-x-0.5">
+                    →
+                  </span>
+                </span>
+              </Link>
+              <Link
+                href="/punnett-square-generator"
+                className="group flex flex-col justify-between rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition hover:border-slate-300 hover:shadow-md"
+              >
+                <div className="space-y-2">
+                  <h4 className="text-base font-semibold text-slate-900">
+                    Punnett Square Generator
+                  </h4>
+                  <p className="text-sm text-slate-700">
+                    Generate single-gene and dihybrid Punnett squares with genotype and phenotype
+                    ratios, plus step-by-step explanations and exportable results.
+                  </p>
+                </div>
+                <span className="mt-4 inline-flex items-center text-sm font-medium text-emerald-700">
+                  Open generator
+                  <span className="ml-1 text-xs transition group-hover:translate-x-0.5">
+                    →
+                  </span>
+                </span>
+              </Link>
+              <Link
+                href="/algorithm-visualizer"
+                className="group flex flex-col justify-between rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition hover:border-slate-300 hover:shadow-md"
+              >
+                <div className="space-y-2">
+                  <h4 className="text-base font-semibold text-slate-900">
+                    Algorithm Visualizer (Sorting + Searching)
+                  </h4>
+                  <p className="text-sm text-slate-700">
+                    Visualize sorting algorithms and binary search with step-by-step playback,
+                    speed control, and counters for comparisons and swaps.
+                  </p>
+                </div>
+                <span className="mt-4 inline-flex items-center text-sm font-medium text-emerald-700">
+                  Open visualizer
+                  <span className="ml-1 text-xs transition group-hover:translate-x-0.5">
+                    →
+                  </span>
+                </span>
+              </Link>
+              <Link
                 href="/dna-sequence-explorer"
                 className="group flex flex-col justify-between rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition hover:border-slate-300 hover:shadow-md"
               >
