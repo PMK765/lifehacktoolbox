@@ -63,6 +63,27 @@ export const HOME_TOOL_INDEX: HomeToolEntry[] = [
     category: "School, study & classroom tools"
   },
   {
+    href: "/regex-playground",
+    title: "Regex Playground (Tester + Highlighter)",
+    description:
+      "Test regex patterns with highlighted matches, capture groups, presets, and a beginner-friendly token explanation panel.",
+    category: "Work, docs & developer tools"
+  },
+  {
+    href: "/projectile-motion-simulator",
+    title: "Projectile Motion Simulator",
+    description:
+      "Plot and animate projectile motion with gravity presets and optional air resistance, plus time of flight, range, max height, and CSV/PNG exports.",
+    category: "School, study & classroom tools"
+  },
+  {
+    href: "/scale-of-the-universe",
+    title: "Scale of the Universe Explorer",
+    description:
+      "Smoothly zoom from subatomic sizes to galaxies and the observable universe, with search, favorites, a guided tour, and exportable snapshots.",
+    category: "School, study & classroom tools"
+  },
+  {
     href: "/hourly-salary-tax-calculator",
     title: "Hourly to Salary Paycheck & After-Tax",
     description:

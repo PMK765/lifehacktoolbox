@@ -666,6 +666,46 @@ export default function HomePage() {
                 </span>
               </Link>
               <Link
+                href="/projectile-motion-simulator"
+                className="group flex flex-col justify-between rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition hover:border-slate-300 hover:shadow-md"
+              >
+                <div className="space-y-2">
+                  <h4 className="text-base font-semibold text-slate-900">
+                    Projectile Motion Simulator
+                  </h4>
+                  <p className="text-sm text-slate-700">
+                    Plot and animate projectile motion with gravity presets and optional air
+                    resistance, plus time of flight, range, max height, and CSV/PNG exports.
+                  </p>
+                </div>
+                <span className="mt-4 inline-flex items-center text-sm font-medium text-emerald-700">
+                  Open simulator
+                  <span className="ml-1 text-xs transition group-hover:translate-x-0.5">
+                    →
+                  </span>
+                </span>
+              </Link>
+              <Link
+                href="/scale-of-the-universe"
+                className="group flex flex-col justify-between rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition hover:border-slate-300 hover:shadow-md"
+              >
+                <div className="space-y-2">
+                  <h4 className="text-base font-semibold text-slate-900">
+                    Scale of the Universe Explorer
+                  </h4>
+                  <p className="text-sm text-slate-700">
+                    Smoothly zoom from subatomic sizes to galaxies and the observable universe,
+                    with search, favorites, a guided tour, and exportable snapshots.
+                  </p>
+                </div>
+                <span className="mt-4 inline-flex items-center text-sm font-medium text-emerald-700">
+                  Open explorer
+                  <span className="ml-1 text-xs transition group-hover:translate-x-0.5">
+                    →
+                  </span>
+                </span>
+              </Link>
+              <Link
                 href="/dna-sequence-explorer"
                 className="group flex flex-col justify-between rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition hover:border-slate-300 hover:shadow-md"
               >
@@ -798,6 +838,26 @@ export default function HomePage() {
                 </div>
                 <span className="mt-4 inline-flex items-center text-sm font-medium text-emerald-700">
                   Open generator
+                  <span className="ml-1 text-xs transition group-hover:translate-x-0.5">
+                    →
+                  </span>
+                </span>
+              </Link>
+              <Link
+                href="/regex-playground"
+                className="group flex flex-col justify-between rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition hover:border-slate-300 hover:shadow-md"
+              >
+                <div className="space-y-2">
+                  <h4 className="text-base font-semibold text-slate-900">
+                    Regex Playground (Tester + Highlighter)
+                  </h4>
+                  <p className="text-sm text-slate-700">
+                    Test regex patterns with highlighted matches, capture groups, presets, and a
+                    beginner-friendly token explanation panel.
+                  </p>
+                </div>
+                <span className="mt-4 inline-flex items-center text-sm font-medium text-emerald-700">
+                  Open playground
                   <span className="ml-1 text-xs transition group-hover:translate-x-0.5">
                     →
                   </span>
