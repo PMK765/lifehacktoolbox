@@ -1,4 +1,5 @@
 import Link from "next/link";
+import HomeToolSearch from "@/components/HomeToolSearch";
 
 export default function HomePage() {
   return (
@@ -29,6 +30,7 @@ export default function HomePage() {
       </section>
       <section aria-label="Available tools" className="space-y-6">
         <h2 className="text-lg font-semibold text-slate-900">Browse tools</h2>
+        <HomeToolSearch />
         <div className="space-y-8">
           <section aria-labelledby="money-bills-heading" className="space-y-3">
             <div className="flex items-baseline justify-between gap-2">
