@@ -5,7 +5,10 @@ import JsonLinter from "@/components/JsonLinter";
 export const metadata: Metadata = {
   title: "JSON Linter & Formatter | LifeHackToolbox",
   description:
-    "Validate and format JSON in your browser. Pretty-print, minify, copy, and download JSON with instant error feedback. 100% free, no login required."
+    "Validate and format JSON in your browser. Pretty-print, minify, copy, and download JSON with instant error feedback. 100% free, no login required.",
+  alternates: {
+    canonical: "https://lifehacktoolbox.com/json-linter"
+  }
 };
 
 export default function JsonLinterPage() {

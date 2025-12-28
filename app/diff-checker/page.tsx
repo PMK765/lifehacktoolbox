@@ -5,7 +5,10 @@ import DiffChecker from "@/components/DiffChecker";
 export const metadata: Metadata = {
   title: "Diff Checker: Compare Text & Code | LifeHackToolbox",
   description:
-    "Compare two blocks of text or code, highlight additions and deletions, and download the diff. Simple, fast, and fully client-side."
+    "Compare two blocks of text or code, highlight additions and deletions, and download the diff. Simple, fast, and fully client-side.",
+  alternates: {
+    canonical: "https://lifehacktoolbox.com/diff-checker"
+  }
 };
 
 export default function DiffCheckerPage() {

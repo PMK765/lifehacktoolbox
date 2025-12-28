@@ -6,7 +6,10 @@ export const metadata: Metadata = {
   title:
     "Hourly to Salary Paycheck & After-Tax Calculator | LifeHackToolbox",
   description:
-    "Start from either your hourly wage or annual salary, then estimate gross income and after-tax income using simplified U.S. federal, state, and FICA assumptions."
+    "Start from either your hourly wage or annual salary, then estimate gross income and after-tax income using simplified U.S. federal, state, and FICA assumptions.",
+  alternates: {
+    canonical: "https://lifehacktoolbox.com/hourly-salary-tax-calculator"
+  }
 };
 
 export default function HourlySalaryTaxCalculatorPage() {

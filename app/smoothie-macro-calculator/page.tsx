@@ -5,7 +5,10 @@ import SmoothieMacroCalculator from "@/components/SmoothieMacroCalculator";
 export const metadata: Metadata = {
   title: "Smoothie Macro Calculator | LifeHackToolbox",
   description:
-    "Build your own smoothie and instantly see calories, protein, carbs, and fat. Mix fruits, liquids, protein powders, and more to hit your macro goals."
+    "Build your own smoothie and instantly see calories, protein, carbs, and fat. Mix fruits, liquids, protein powders, and more to hit your macro goals.",
+  alternates: {
+    canonical: "https://lifehacktoolbox.com/smoothie-macro-calculator"
+  }
 };
 
 export default function SmoothieMacroCalculatorPage() {

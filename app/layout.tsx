@@ -5,8 +5,24 @@ import "./globals.css";
 import logo from "../icon.png";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://lifehacktoolbox.com"),
   title: "LifeHackToolbox",
-  description: "LifeHackToolbox is a small set of free, easy calculators and tools you can use right in your browser."
+  description:
+    "LifeHackToolbox is a small set of free, easy calculators and tools you can use right in your browser.",
+  alternates: {
+    canonical: "https://lifehacktoolbox.com/"
+  },
+  openGraph: {
+    title: "LifeHackToolbox",
+    description:
+      "LifeHackToolbox is a small set of free, easy calculators and tools you can use right in your browser.",
+    url: "https://lifehacktoolbox.com/",
+    type: "website"
+  },
+  robots: {
+    index: true,
+    follow: true
+  }
 };
 
 type RootLayoutProps = {

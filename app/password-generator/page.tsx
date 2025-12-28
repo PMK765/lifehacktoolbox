@@ -5,7 +5,10 @@ import PasswordGenerator from "@/components/PasswordGenerator";
 export const metadata: Metadata = {
   title: "Random Password Generator | LifeHackToolbox",
   description:
-    "Generate secure random passwords with customizable character sets. Copy, export, and save password history. 100% client-side and privacy friendly."
+    "Generate secure random passwords with customizable character sets. Copy, export, and save password history. 100% client-side and privacy friendly.",
+  alternates: {
+    canonical: "https://lifehacktoolbox.com/password-generator"
+  }
 };
 
 export default function PasswordGeneratorPage() {

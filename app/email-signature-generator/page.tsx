@@ -5,7 +5,10 @@ import EmailSignatureGenerator from "@/components/EmailSignatureGenerator";
 export const metadata: Metadata = {
   title: "Email Signature Generator | LifeHackToolbox",
   description:
-    "Create a professional email signature with your name, job title, company, links, and logo. Copy HTML or download as a PNG. Free and entirely client-side."
+    "Create a professional email signature with your name, job title, company, links, and logo. Copy HTML or download as a PNG. Free and entirely client-side.",
+  alternates: {
+    canonical: "https://lifehacktoolbox.com/email-signature-generator"
+  }
 };
 
 export default function EmailSignatureGeneratorPage() {

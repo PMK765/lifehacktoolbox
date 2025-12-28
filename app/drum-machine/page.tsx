@@ -5,7 +5,10 @@ export const metadata: Metadata = {
   title:
     "Online Drum Machine & 16-Step Beat Maker | LifeHackToolbox",
   description:
-    "Create drum patterns in your browser with a 16-step sequencer for kick, snare, hi-hats, and bass. Adjustable tempo, mutes, pattern saving, and more."
+    "Create drum patterns in your browser with a 16-step sequencer for kick, snare, hi-hats, and bass. Adjustable tempo, mutes, pattern saving, and more.",
+  alternates: {
+    canonical: "https://lifehacktoolbox.com/drum-machine"
+  }
 };
 
 const DrumMachinePage = () => {

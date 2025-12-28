@@ -5,7 +5,10 @@ import TimeDurationCalculator from "@/components/TimeDurationCalculator";
 export const metadata: Metadata = {
   title: "Time Duration Calculator | LifeHackToolbox",
   description:
-    "Calculate the time between two dates or add and subtract days, hours, minutes, and seconds from a specific date and time."
+    "Calculate the time between two dates or add and subtract days, hours, minutes, and seconds from a specific date and time.",
+  alternates: {
+    canonical: "https://lifehacktoolbox.com/time-duration-calculator"
+  }
 };
 
 export default function TimeDurationCalculatorPage() {

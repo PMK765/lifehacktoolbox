@@ -5,7 +5,10 @@ export const metadata: Metadata = {
   title:
     "Life Expectancy Explorer & Remaining Years Calculator | LifeHackToolbox",
   description:
-    "Estimate your remaining years of life based on age, sex, country, and lifestyle factors. Explore how smoking, exercise, BMI, and stress affect your life expectancy with interactive charts."
+    "Estimate your remaining years of life based on age, sex, country, and lifestyle factors. Explore how smoking, exercise, BMI, and stress affect your life expectancy with interactive charts.",
+  alternates: {
+    canonical: "https://lifehacktoolbox.com/life-expectancy-explorer"
+  }
 };
 
 const LifeExpectancyExplorerPage = () => {

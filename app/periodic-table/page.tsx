@@ -3,7 +3,10 @@ import PeriodicTableApp from "@/components/PeriodicTableApp";
 export const metadata = {
   title: "Interactive Periodic Table | LifeHackToolbox",
   description:
-    "A fully interactive periodic table with clickable elements, atomic details, group filters, trends, electron configurations, and educational visualizations. Completely free and runs entirely in your browser."
+    "A fully interactive periodic table with clickable elements, atomic details, group filters, trends, electron configurations, and educational visualizations. Completely free and runs entirely in your browser.",
+  alternates: {
+    canonical: "https://lifehacktoolbox.com/periodic-table"
+  }
 };
 
 const PeriodicTablePage = () => {

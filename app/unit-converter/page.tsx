@@ -3,7 +3,10 @@ import UnitConverterApp from "@/components/UnitConverterApp";
 export const metadata = {
   title: "Unit Converter | LifeHackToolbox",
   description:
-    "Convert between units of length, weight, volume, energy, temperature, speed, area, pressure, data storage, and number bases with a fast, mobile-friendly unit converter. All in your browser."
+    "Convert between units of length, weight, volume, energy, temperature, speed, area, pressure, data storage, and number bases with a fast, mobile-friendly unit converter. All in your browser.",
+  alternates: {
+    canonical: "https://lifehacktoolbox.com/unit-converter"
+  }
 };
 
 const UnitConverterPage = () => {

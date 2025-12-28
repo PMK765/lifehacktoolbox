@@ -5,7 +5,10 @@ import PianoKeyboard from "@/components/PianoKeyboard";
 export const metadata: Metadata = {
   title: "Online Piano Keyboard | LifeHackToolbox",
   description:
-    "Play piano directly in your browser with a clickable keyboard and correct pitches using the Web Audio API. Supports mouse and keyboard input, with multiple octaves."
+    "Play piano directly in your browser with a clickable keyboard and correct pitches using the Web Audio API. Supports mouse and keyboard input, with multiple octaves.",
+  alternates: {
+    canonical: "https://lifehacktoolbox.com/online-piano-keyboard"
+  }
 };
 
 export default function OnlinePianoKeyboardPage() {

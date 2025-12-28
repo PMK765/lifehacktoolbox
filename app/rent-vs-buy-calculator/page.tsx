@@ -5,7 +5,10 @@ export const metadata: Metadata = {
   title:
     "Rent vs Buy Calculator | Compare Renting and Buying a Home | LifeHackToolbox",
   description:
-    "Use this rent vs buy calculator to compare monthly costs, long-term net worth, and the break-even year between renting and buying a house. See how appreciation, rent inflation, and investing your savings change the math."
+    "Use this rent vs buy calculator to compare monthly costs, long-term net worth, and the break-even year between renting and buying a house. See how appreciation, rent inflation, and investing your savings change the math.",
+  alternates: {
+    canonical: "https://lifehacktoolbox.com/rent-vs-buy-calculator"
+  }
 };
 
 const RentVsBuyPage = () => {

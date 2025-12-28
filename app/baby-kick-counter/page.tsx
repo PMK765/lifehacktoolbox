@@ -5,7 +5,10 @@ import BabyKickCounter from "@/components/BabyKickCounter";
 export const metadata: Metadata = {
   title: "Baby Kick Counter | LifeHackToolbox",
   description:
-    "Track your baby’s movements with an easy kick counter. Time kicks, see how long it takes to reach 10 kicks, and review recent sessions. Not a substitute for medical advice."
+    "Track your baby’s movements with an easy kick counter. Time kicks, see how long it takes to reach 10 kicks, and review recent sessions. Not a substitute for medical advice.",
+  alternates: {
+    canonical: "https://lifehacktoolbox.com/baby-kick-counter"
+  }
 };
 
 export default function BabyKickCounterPage() {

@@ -3,7 +3,10 @@ import DiceRollerApp from "@/components/DiceRollerApp";
 export const metadata = {
   title: "Custom Dice Roller & RPG Dice Simulator | LifeHackToolbox",
   description:
-    "Roll RPG dice like d4, d6, d8, d10, d12, and d20 with modifiers, animations, and roll history. Perfect for tabletop games, DnD sessions, and board games."
+    "Roll RPG dice like d4, d6, d8, d10, d12, and d20 with modifiers, animations, and roll history. Perfect for tabletop games, DnD sessions, and board games.",
+  alternates: {
+    canonical: "https://lifehacktoolbox.com/dice-roller"
+  }
 };
 
 const DiceRollerPage = () => {

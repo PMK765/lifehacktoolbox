@@ -4,7 +4,10 @@ export const metadata = {
   title:
     "Binary, Decimal, Hex, and Octal Converter & Bit Visualizer | LifeHackToolbox",
   description:
-    "Convert between binary, decimal, hexadecimal, and octal with an interactive number base converter and bit visualizer. Great for computer science students learning how number systems work."
+    "Convert between binary, decimal, hexadecimal, and octal with an interactive number base converter and bit visualizer. Great for computer science students learning how number systems work.",
+  alternates: {
+    canonical: "https://lifehacktoolbox.com/binary-decimal-hex-converter"
+  }
 };
 
 const BinaryDecimalHexConverterPage = () => {

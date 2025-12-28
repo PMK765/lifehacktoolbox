@@ -3,7 +3,10 @@ import DnaSequenceExplorer from "@/components/DnaSequenceExplorer";
 export const metadata = {
   title: "DNA Sequence Explorer | LifeHackToolbox",
   description:
-    "Visualize DNA sequences, codons, and reading frames. Translate bases to amino acids, inspect base frequencies, and export charts and data. Fully interactive and runs in your browser."
+    "Visualize DNA sequences, codons, and reading frames. Translate bases to amino acids, inspect base frequencies, and export charts and data. Fully interactive and runs in your browser.",
+  alternates: {
+    canonical: "https://lifehacktoolbox.com/dna-sequence-explorer"
+  }
 };
 
 const DnaSequenceExplorerPage = () => {

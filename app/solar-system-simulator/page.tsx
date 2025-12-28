@@ -5,7 +5,10 @@ import SolarSystemVisualizer from "@/components/SolarSystemVisualizer";
 export const metadata: Metadata = {
   title: "Solar System Orbit Simulator | LifeHackToolbox",
   description:
-    "Explore a real-time, interactive map of the solar system. Watch the planets orbit the Sun, tap a planet to see stats like distance, mass, temperature, and more. Fully in-browser and mobile-friendly."
+    "Explore a real-time, interactive map of the solar system. Watch the planets orbit the Sun, tap a planet to see stats like distance, mass, temperature, and more. Fully in-browser and mobile-friendly.",
+  alternates: {
+    canonical: "https://lifehacktoolbox.com/solar-system-simulator"
+  }
 };
 
 export default function SolarSystemSimulatorPage() {

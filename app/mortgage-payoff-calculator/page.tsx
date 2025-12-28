@@ -5,7 +5,10 @@ import MortgagePayoffCalculator from "@/components/MortgagePayoffCalculator";
 export const metadata: Metadata = {
   title: "Mortgage Payoff & Amortization Calculator | LifeHackToolbox",
   description:
-    "Calculate your monthly mortgage payment, generate a full amortization schedule, and see how extra payments can save you interest and shorten your payoff date."
+    "Calculate your monthly mortgage payment, generate a full amortization schedule, and see how extra payments can save you interest and shorten your payoff date.",
+  alternates: {
+    canonical: "https://lifehacktoolbox.com/mortgage-payoff-calculator"
+  }
 };
 
 export default function MortgagePayoffCalculatorPage() {

@@ -3,7 +3,10 @@ import ColorPaletteExtractor from "@/components/ColorPaletteExtractor";
 export const metadata = {
   title: "Color Picker & Palette Extractor | LifeHackToolbox",
   description:
-    "Upload an image to extract a dominant color palette with HEX, RGB, and HSL values. Click to pick colors, copy codes, and export palettes as PNG or JSON. Everything runs in your browser."
+    "Upload an image to extract a dominant color palette with HEX, RGB, and HSL values. Click to pick colors, copy codes, and export palettes as PNG or JSON. Everything runs in your browser.",
+  alternates: {
+    canonical: "https://lifehacktoolbox.com/color-palette-extractor"
+  }
 };
 
 const ColorPaletteExtractorPage = () => {

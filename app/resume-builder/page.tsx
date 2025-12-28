@@ -6,6 +6,9 @@ export const metadata: Metadata = {
   title: "Free Resume Builder (ATS-Friendly, No Login) | LifeHackToolbox",
   description:
     "Build a clean, ATS-friendly resume in your browser with no login or paywall. Pick a template, tailor it to your career, and export to PDF, Word, text, or Markdown.",
+  alternates: {
+    canonical: "https://lifehacktoolbox.com/resume-builder"
+  },
   openGraph: {
     title: "Free Resume Builder (ATS-Friendly, No Login) | LifeHackToolbox",
     description:

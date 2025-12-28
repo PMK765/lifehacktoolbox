@@ -5,7 +5,10 @@ import RandomMealGenerator from "@/components/RandomMealGenerator";
 export const metadata: Metadata = {
   title: "Random Meal Generator | LifeHackToolbox",
   description:
-    "Can't decide what to eat? Use this random meal generator to pick a breakfast, lunch, dinner, or snack based on your preferences and calorie range."
+    "Can't decide what to eat? Use this random meal generator to pick a breakfast, lunch, dinner, or snack based on your preferences and calorie range.",
+  alternates: {
+    canonical: "https://lifehacktoolbox.com/random-meal-generator"
+  }
 };
 
 export default function RandomMealGeneratorPage() {

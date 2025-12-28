@@ -5,7 +5,10 @@ import WeightedGradeCalculator from "@/components/WeightedGradeCalculator";
 export const metadata: Metadata = {
   title: "Weighted Grade Calculator | LifeHackToolbox",
   description:
-    "Calculate your current class grade using a weighted grade calculator. Add categories like homework, quizzes, and exams with their weights, and see your overall percentage."
+    "Calculate your current class grade using a weighted grade calculator. Add categories like homework, quizzes, and exams with their weights, and see your overall percentage.",
+  alternates: {
+    canonical: "https://lifehacktoolbox.com/weighted-grade-calculator"
+  }
 };
 
 export default function WeightedGradeCalculatorPage() {

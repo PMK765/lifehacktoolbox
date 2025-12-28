@@ -6,7 +6,10 @@ export const metadata: Metadata = {
   title:
     "Body Progress Tracker, BMI & Goal Calculator | LifeHackToolbox",
   description:
-    "Track your weight and measurements over time, calculate BMI, BMR and TDEE, set weight goals, and visualize your progress with charts. Export your data as CSV or shareable images. 100% free, no login required."
+    "Track your weight and measurements over time, calculate BMI, BMR and TDEE, set weight goals, and visualize your progress with charts. Export your data as CSV or shareable images. 100% free, no login required.",
+  alternates: {
+    canonical: "https://lifehacktoolbox.com/body-progress-tracker"
+  }
 };
 
 export default function BodyProgressTrackerPage() {

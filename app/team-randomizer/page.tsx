@@ -5,7 +5,10 @@ import TeamRandomizer from "@/components/TeamRandomizer";
 export const metadata: Metadata = {
   title: "Team Randomizer | LifeHackToolbox",
   description:
-    "Create random teams for classes, sports, and group activities. Paste a list of names, choose the number of teams or team size, and instantly generate fair, random teams."
+    "Create random teams for classes, sports, and group activities. Paste a list of names, choose the number of teams or team size, and instantly generate fair, random teams.",
+  alternates: {
+    canonical: "https://lifehacktoolbox.com/team-randomizer"
+  }
 };
 
 export default function TeamRandomizerPage() {

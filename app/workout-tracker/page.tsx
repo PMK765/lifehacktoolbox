@@ -5,7 +5,10 @@ import WorkoutTracker from "@/components/WorkoutTracker";
 export const metadata: Metadata = {
   title: "Workout Tracker & Strength Progress Charts | LifeHackToolbox",
   description:
-    "Track your workouts, sets, reps, and weights, visualize strength progress over time, and export your training log as CSV or shareable images. 100% free, no login required."
+    "Track your workouts, sets, reps, and weights, visualize strength progress over time, and export your training log as CSV or shareable images. 100% free, no login required.",
+  alternates: {
+    canonical: "https://lifehacktoolbox.com/workout-tracker"
+  }
 };
 
 export default function WorkoutTrackerPage() {

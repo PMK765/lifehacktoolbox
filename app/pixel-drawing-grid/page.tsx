@@ -5,7 +5,10 @@ export const metadata: Metadata = {
   title:
     "Pixel Drawing Grid & Graph Paper Editor | LifeHackToolbox",
   description:
-    "Draw pixel art or sketch on virtual graph paper. Adjust grid size, pick colors, undo/redo, and export your drawing as a PNG image or JSON file, all in your browser."
+    "Draw pixel art or sketch on virtual graph paper. Adjust grid size, pick colors, undo/redo, and export your drawing as a PNG image or JSON file, all in your browser.",
+  alternates: {
+    canonical: "https://lifehacktoolbox.com/pixel-drawing-grid"
+  }
 };
 
 const PixelDrawingGridPage = () => {

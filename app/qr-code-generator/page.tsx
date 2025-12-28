@@ -5,7 +5,10 @@ import QrCodeGenerator from "@/components/QrCodeGenerator";
 export const metadata: Metadata = {
   title: "QR Code Generator | LifeHackToolbox",
   description:
-    "Generate QR codes for URLs, Wi-Fi, SMS, phone numbers, and more. Customize size, colors, and error correction, add an optional logo, and download as PNG. 100% client-side."
+    "Generate QR codes for URLs, Wi-Fi, SMS, phone numbers, and more. Customize size, colors, and error correction, add an optional logo, and download as PNG. 100% client-side.",
+  alternates: {
+    canonical: "https://lifehacktoolbox.com/qr-code-generator"
+  }
 };
 
 export default function QrCodeGeneratorPage() {

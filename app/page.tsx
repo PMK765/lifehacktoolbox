@@ -887,6 +887,109 @@ export default function HomePage() {
           </section>
         </div>
       </section>
+      <section
+        aria-labelledby="what-is-lifehacktoolbox-heading"
+        className="space-y-6 rounded-2xl border border-slate-200 bg-white p-6 text-slate-800 shadow-sm sm:p-8"
+      >
+        <h2
+          id="what-is-lifehacktoolbox-heading"
+          className="text-lg font-semibold tracking-tight text-slate-900"
+        >
+          What is LifeHackToolbox?
+        </h2>
+        <div className="space-y-4 text-sm text-slate-700 md:text-base">
+          <p>
+            LifeHackToolbox is a growing collection of fast, practical,{" "}
+            <span className="font-semibold">free everyday calculators</span> and
+            interactive tools you can use directly in your browser. The goal is
+            simple: remove friction from small decisions and common tasks that
+            people deal with every week. Instead of hunting through ad-heavy
+            sites, downloading apps, or signing up for accounts, you can open a
+            tool, get the answer, and move on.
+          </p>
+          <p>
+            Everything on the site is designed to be{" "}
+            <span className="font-semibold">browser-based and private</span>.
+            Tools run on your device, not on a backend server. There is no
+            login required, and the site is built around the idea that you
+            should be able to solve a problem without giving away personal
+            data. Some tools may store small preferences or history using your
+            browser&apos;s local storage for convenience, but LifeHackToolbox
+            does not need accounts to be useful.
+          </p>
+          <h3 className="text-base font-semibold text-slate-900">
+            A toolbox for math, science, finance, and design
+          </h3>
+          <p>
+            The tools are intentionally diverse because real life is diverse.
+            One day you might need a finance check like a rent vs buy
+            comparison; another day you might need a conversion for a recipe, a
+            homework assignment, or a DIY project. LifeHackToolbox groups tools
+            into categories so you can browse quickly and find what you need:
+          </p>
+          <ul className="list-disc space-y-2 pl-5">
+            <li>
+              <span className="font-semibold">Money &amp; bills:</span> quick
+              calculators for real-world decisions like paycheck estimates,
+              budgeting tradeoffs, or mortgage planning.
+            </li>
+            <li>
+              <span className="font-semibold">School and science:</span>{" "}
+              tools for learning and exploration, such as number base
+              conversions, unit conversion, DNA and periodic table references,
+              and interactive visualizers.
+            </li>
+            <li>
+              <span className="font-semibold">Work and documents:</span>{" "}
+              browser-native utilities like a resume builder, PDF signer, diff
+              checker, QR generator, and formatters for structured text.
+            </li>
+            <li>
+              <span className="font-semibold">Design and creative tools:</span>{" "}
+              utilities for colors, images, and lightweight creative
+              experimentation like pixel grids and browser-based instruments.
+            </li>
+          </ul>
+          <h3 className="text-base font-semibold text-slate-900">
+            Built for speed, clarity, and mobile use
+          </h3>
+          <p>
+            A good calculator is not just correct—it is also easy to use on a
+            phone, easy to understand, and honest about what it can and cannot
+            do. LifeHackToolbox focuses on clean layouts, readable inputs, and
+            outputs that explain themselves. Many tools include charts or
+            visualizations when they make the result easier to interpret, and
+            every tool page includes a plain-English section explaining how the
+            calculator works, common edge cases, and why the concept matters.
+          </p>
+          <p>
+            When a tool relies on assumptions, those assumptions are shown
+            directly in the UI. When a result is an estimate rather than a fact,
+            the tool says so. The point is clarity: you should be able to
+            understand the direction of the answer and what would change it,
+            not just copy a number out of a box.
+          </p>
+          <h3 className="text-base font-semibold text-slate-900">
+            Mission: make everyday problem-solving feel effortless
+          </h3>
+          <p>
+            LifeHackToolbox exists because the internet is full of tools that
+            are technically useful but unpleasant to use—slow pages, intrusive
+            popups, confusing interfaces, and forced sign-ups. This site is
+            built with the opposite philosophy: fast, focused tools that respect
+            your time. Whether you are planning your finances, studying for a
+            class, preparing documents, building something at home, or just
+            exploring out of curiosity, the mission is to give you a dependable
+            set of small utilities that feel good to use.
+          </p>
+          <p>
+            If you are new here, the best way to start is to browse the
+            categories above and open whatever matches your current need. The
+            site is meant to be revisited: a practical, evolving toolbox you can
+            rely on whenever a small calculation or conversion comes up.
+          </p>
+        </div>
+      </section>
     </div>
   );
 }

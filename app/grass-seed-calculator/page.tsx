@@ -5,7 +5,10 @@ import GrassSeedCalculator from "@/components/GrassSeedCalculator";
 export const metadata: Metadata = {
   title: "Grass Seed Coverage Calculator | LifeHackToolbox",
   description:
-    "Estimate how many bags of grass seed you need. Supports major brands, new lawns, reseeding, and custom seed mixes."
+    "Estimate how many bags of grass seed you need. Supports major brands, new lawns, reseeding, and custom seed mixes.",
+  alternates: {
+    canonical: "https://lifehacktoolbox.com/grass-seed-calculator"
+  }
 };
 
 export default function GrassSeedCalculatorPage() {

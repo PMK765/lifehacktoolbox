@@ -5,7 +5,10 @@ import ReceiptBillSplitter from "@/components/ReceiptBillSplitter";
 export const metadata: Metadata = {
   title: "Receipt Bill Splitter | LifeHackToolbox",
   description:
-    "Quickly enter receipt items, assign them to people, and split the bill with tax and tip included. Everything runs in your browser."
+    "Quickly enter receipt items, assign them to people, and split the bill with tax and tip included. Everything runs in your browser.",
+  alternates: {
+    canonical: "https://lifehacktoolbox.com/receipt-bill-splitter"
+  }
 };
 
 export default function ReceiptBillSplitterPage() {

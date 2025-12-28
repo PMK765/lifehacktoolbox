@@ -5,7 +5,10 @@ import HowLongToFreezeCalculator from "@/components/HowLongToFreezeCalculator";
 export const metadata: Metadata = {
   title: "How Long to Freeze? | LifeHackToolbox",
   description:
-    "See how long you can freeze meats, bread, leftovers, and more. Pick a food, freezer type, and frozen date to get a recommended max time and best-by estimate."
+    "See how long you can freeze meats, bread, leftovers, and more. Pick a food, freezer type, and frozen date to get a recommended max time and best-by estimate.",
+  alternates: {
+    canonical: "https://lifehacktoolbox.com/how-long-to-freeze"
+  }
 };
 
 export default function HowLongToFreezePage() {

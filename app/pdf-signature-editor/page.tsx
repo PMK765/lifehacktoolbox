@@ -5,7 +5,10 @@ import PdfSignatureEditor from "@/components/PdfSignatureEditor";
 export const metadata: Metadata = {
   title: "PDF Signature & Form Filler | LifeHackToolbox",
   description:
-    "Sign PDFs and fill basic form fields directly in your browser. Draw or type your signature, place it on any page, add text boxes, and download the edited PDF. No upload, no account, fully client-side."
+    "Sign PDFs and fill basic form fields directly in your browser. Draw or type your signature, place it on any page, add text boxes, and download the edited PDF. No upload, no account, fully client-side.",
+  alternates: {
+    canonical: "https://lifehacktoolbox.com/pdf-signature-editor"
+  }
 };
 
 export default function PdfSignatureEditorPage() {

@@ -5,7 +5,10 @@ import BabyNameGenerator from "@/components/BabyNameGenerator";
 export const metadata: Metadata = {
   title: "Baby Name Generator by Origin & Meaning | LifeHackToolbox",
   description:
-    "Discover boy, girl, and gender-neutral baby names by origin and meaning. Filter by country or region, search meanings, and randomize first and middle names with your last name."
+    "Discover boy, girl, and gender-neutral baby names by origin and meaning. Filter by country or region, search meanings, and randomize first and middle names with your last name.",
+  alternates: {
+    canonical: "https://lifehacktoolbox.com/baby-name-generator"
+  }
 };
 
 export default function BabyNameGeneratorPage() {

@@ -5,7 +5,10 @@ import PaintCoverageCalculator from "@/components/PaintCoverageCalculator";
 export const metadata: Metadata = {
   title: "Paint Coverage Calculator | LifeHackToolbox",
   description:
-    "Estimate how much paint you need for one or more rooms with this paint coverage calculator. Account for walls, ceilings, doors, windows, and multiple coats."
+    "Estimate how much paint you need for one or more rooms with this paint coverage calculator. Account for walls, ceilings, doors, windows, and multiple coats.",
+  alternates: {
+    canonical: "https://lifehacktoolbox.com/paint-coverage-calculator"
+  }
 };
 
 export default function PaintCoverageCalculatorPage() {

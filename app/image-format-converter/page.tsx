@@ -5,7 +5,10 @@ export const metadata: Metadata = {
   title:
     "HEIC to JPG, PNG & Image Format Converter | LifeHackToolbox",
   description:
-    "Convert HEIC photos to JPG, PNG, or WEBP directly in your browser. Supports JPG, PNG, WEBP, GIF, and more, with optional max file size and quality controls. No uploads, fully client-side."
+    "Convert HEIC photos to JPG, PNG, or WEBP directly in your browser. Supports JPG, PNG, WEBP, GIF, and more, with optional max file size and quality controls. No uploads, fully client-side.",
+  alternates: {
+    canonical: "https://lifehacktoolbox.com/image-format-converter"
+  }
 };
 
 const ImageFormatConverterPage = () => {

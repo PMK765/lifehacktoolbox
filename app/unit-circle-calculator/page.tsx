@@ -3,7 +3,10 @@ import UnitCircleExplorer from "@/components/UnitCircleExplorer";
 export const metadata = {
   title: "Unit Circle Calculator & Trig Explorer | LifeHackToolbox",
   description:
-    "Use this interactive unit circle calculator to explore angles in degrees and radians, and see sine, cosine, and tangent values with exact trig ratios. Perfect for trigonometry students."
+    "Use this interactive unit circle calculator to explore angles in degrees and radians, and see sine, cosine, and tangent values with exact trig ratios. Perfect for trigonometry students.",
+  alternates: {
+    canonical: "https://lifehacktoolbox.com/unit-circle-calculator"
+  }
 };
 
 const UnitCircleCalculatorPage = () => {
