@@ -44,8 +44,9 @@ const CellStructureExplorer = () => {
     const raw = window.localStorage.getItem(QUIZ_STORAGE_KEY);
     if (!raw) return;
     const parsed = JSON.parse(raw) as Partial<QuizState>;
-    if (typeof parsed.bestScore === "number" && Number.isFinite(parsed.bestScore)) {
-      setQuiz((prev) => ({ ...prev, bestScore: parsed.bestScore }));
+    const best = parsed.bestScore;
+    if (typeof best === "number" && Number.isFinite(best)) {
+      setQuiz((prev) => ({ ...prev, bestScore: best }));
     }
   }, []);
 

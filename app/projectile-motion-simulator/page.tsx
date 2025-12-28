@@ -35,8 +35,8 @@ const ProjectileMotionSimulatorPage = () => {
         <p>
           In the simplest model, gravity is constant and the only acceleration is downward:
           \(a_x = 0\) and \(a_y = -g\). If the initial speed is \(v_0\) and the launch angle is
-          \(\theta\), the horizontal and vertical components are \(v_{x0} = v_0\cos(\theta)\) and
-          \(v_{y0} = v_0\sin(\theta)\). The position over time is:
+          \(\theta\), the horizontal and vertical components are \(v_{"{x0}"} = v_0\cos(\theta)\) and
+          \(v_{"{y0}"} = v_0\sin(\theta)\). The position over time is:
         </p>
         <p className="font-mono text-sm text-slate-900">
           x(t) = vₓ₀·t

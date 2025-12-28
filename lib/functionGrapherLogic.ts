@@ -33,6 +33,10 @@ export type ParseResult =
   | { ok: true; ast: AstNode }
   | { ok: false; message: string; index?: number };
 
+export type TokenizeResult =
+  | { ok: true; tokens: Token[] }
+  | { ok: false; message: string; index?: number };
+
 export const clampNumber = (
   value: number,
   min: number,
@@ -89,7 +93,7 @@ const shouldInsertImplicitMultiply = (prev: Token, next: Token): boolean => {
   return prevCanEnd && nextCanStart;
 };
 
-export const tokenizeExpression = (expression: string): ParseResult & { tokens?: Token[] } => {
+export const tokenizeExpression = (expression: string): TokenizeResult => {
   const tokens: Token[] = [];
   const src = expression;
   let index = 0;
@@ -166,7 +170,7 @@ export const tokenizeExpression = (expression: string): ParseResult & { tokens?:
     }
   });
 
-  return { ok: true, ast: { type: "number", value: 0 }, tokens: withImplicit };
+  return { ok: true, tokens: withImplicit };
 };
 
 type RpnItem =
@@ -188,7 +192,7 @@ const isRightAssociative = (op: string): boolean => op === "^" || op === "neg";
 
 export const parseExpressionToAst = (expression: string): ParseResult => {
   const tokenized = tokenizeExpression(expression);
-  if (!tokenized.ok || !tokenized.tokens) {
+  if (!tokenized.ok) {
     return { ok: false, message: tokenized.message, index: tokenized.index };
   }
   const tokens = tokenized.tokens;

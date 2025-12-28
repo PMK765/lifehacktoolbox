@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import FunctionGrapher from "@/components/FunctionGrapher";
 
 export const metadata: Metadata = {
@@ -25,7 +26,15 @@ const FunctionGrapherPage = () => {
         </p>
       </section>
       <section className="mt-6">
-        <FunctionGrapher />
+        <Suspense
+          fallback={
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-700 shadow-sm">
+              Loading Function Grapher…
+            </div>
+          }
+        >
+          <FunctionGrapher />
+        </Suspense>
       </section>
       <section className="mt-12 space-y-4 text-slate-800 text-sm md:text-base">
         <h2 className="text-lg font-semibold tracking-tight text-slate-900">

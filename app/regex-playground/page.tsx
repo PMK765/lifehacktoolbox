@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import RegexPlayground from "@/components/RegexPlayground";
 
 export const metadata: Metadata = {
@@ -25,7 +26,15 @@ const RegexPlaygroundPage = () => {
       </section>
 
       <section className="mt-6">
-        <RegexPlayground />
+        <Suspense
+          fallback={
+            <div className="rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-700 shadow-sm">
+              Loading Regex Playground…
+            </div>
+          }
+        >
+          <RegexPlayground />
+        </Suspense>
       </section>
 
       <section className="mt-12 space-y-4 text-sm text-slate-800 md:text-base">

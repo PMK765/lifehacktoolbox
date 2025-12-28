@@ -766,11 +766,11 @@ const ProbabilitySimulator = () => {
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="space-y-0.5">
                   <p className="text-xs font-semibold text-slate-100">
-                    {scenarioId === "coin_heads_count"
+                    {scenario.id === "coin_heads_count"
                       ? `Coin flips (${scenario.flipsPerTrial} flips)`
-                      : scenarioId === "dice_sum"
+                      : scenario.id === "dice_sum"
                       ? `Dice sum (${scenario.rollsPerTrial}× d${scenario.sides})`
-                      : scenarioId === "two_dice_sum"
+                      : scenario.id === "two_dice_sum"
                       ? "Two dice sum (2× d6)"
                       : `Cards: ${getSuitLabel(suit)} in ${scenario.drawsPerTrial} draws`}
                   </p>
