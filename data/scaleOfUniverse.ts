@@ -216,7 +216,7 @@ export const UNIVERSE_OBJECTS: UniverseObject[] = [
     category: "Cosmic",
     diameterMeters: 8.8e26,
     description:
-      "The observable universe is the region we can see in principle because light has had time to reach us since the start of Creation.",
+      "The observable universe is the region we can see in principle because light has had time to reach us since the Big Bang.",
     comparisons: ["This is a horizon, not necessarily the full universe."]
   }
 ];

@@ -52,6 +52,9 @@ const ProjectileMotionSimulator = () => {
   const [animTime, setAnimTime] = useState(0);
   const rafRef = useRef<number | null>(null);
   const lastTsRef = useRef<number | null>(null);
+  const isAnimatingRef = useRef(false);
+  const animTimeRef = useRef(0);
+  const flightTimeRef = useRef(0);
 
   const exportRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -107,8 +110,21 @@ const ProjectileMotionSimulator = () => {
   const computed = useMemo(() => computeProjectile(inputs), [inputs]);
 
   useEffect(() => {
+    isAnimatingRef.current = isAnimating;
+  }, [isAnimating]);
+
+  useEffect(() => {
+    animTimeRef.current = animTime;
+  }, [animTime]);
+
+  useEffect(() => {
+    flightTimeRef.current = computed.ok ? computed.outputs.timeOfFlight : 0;
+  }, [computed]);
+
+  useEffect(() => {
     setIsAnimating(false);
     setAnimTime(0);
+    animTimeRef.current = 0;
     lastTsRef.current = null;
     if (rafRef.current !== null) {
       window.cancelAnimationFrame(rafRef.current);
@@ -257,18 +273,28 @@ const ProjectileMotionSimulator = () => {
   }, [computed, view, animTime]);
 
   const animate = (ts: number) => {
-    if (!computed.ok) return;
-    if (!isAnimating) return;
+    if (!isAnimatingRef.current) {
+      rafRef.current = null;
+      return;
+    }
     const prev = lastTsRef.current;
     lastTsRef.current = ts;
     const dt = typeof prev === "number" ? (ts - prev) / 1000 : 0;
-    const next = animTime + dt;
-    if (next >= computed.outputs.timeOfFlight) {
-      setAnimTime(computed.outputs.timeOfFlight);
+    if (!Number.isFinite(dt) || dt <= 0) {
+      rafRef.current = window.requestAnimationFrame(animate);
+      return;
+    }
+    const flightTime = flightTimeRef.current;
+    const next = animTimeRef.current + dt;
+    if (flightTime > 0 && next >= flightTime) {
+      animTimeRef.current = flightTime;
+      setAnimTime(flightTime);
+      isAnimatingRef.current = false;
       setIsAnimating(false);
       rafRef.current = null;
       return;
     }
+    animTimeRef.current = next;
     setAnimTime(next);
     rafRef.current = window.requestAnimationFrame(animate);
   };
@@ -289,20 +315,25 @@ const ProjectileMotionSimulator = () => {
   const startAnimation = () => {
     if (!computed.ok) return;
     setAnimTime(0);
+    animTimeRef.current = 0;
     lastTsRef.current = null;
+    isAnimatingRef.current = true;
     setIsAnimating(true);
   };
 
   const pauseResume = () => {
     if (!computed.ok) return;
     if (isAnimating) {
+      isAnimatingRef.current = false;
       setIsAnimating(false);
       return;
     }
     if (animTime >= computed.outputs.timeOfFlight) {
       setAnimTime(0);
+      animTimeRef.current = 0;
     }
     lastTsRef.current = null;
+    isAnimatingRef.current = true;
     setIsAnimating(true);
   };
 
