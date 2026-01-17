@@ -1,16 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import ResumeBuilder from "./ResumeBuilder";
+import { buildFaqPageJsonLd, buildWebApplicationJsonLd } from "@/lib/seoJsonLd";
 
 export const metadata: Metadata = {
-  title: "Free Resume Builder (ATS-Friendly, No Login) | LifeHackToolbox",
+  title: "Resume Builder (ATS-Friendly): Free PDF & Word Export, No Login | LifeHackToolbox",
   description:
-    "Build a clean, ATS-friendly resume in your browser with no login or paywall. Pick a template, tailor it to your career, and export to PDF, Word, text, or Markdown.",
+    "ATS-friendly resume builder you can use in your browser with no login. Pick a template, tailor to your role, and export to PDF, Word (DOCX), plain text, or Markdown.",
   alternates: {
     canonical: "https://lifehacktoolbox.com/resume-builder"
   },
   openGraph: {
-    title: "Free Resume Builder (ATS-Friendly, No Login) | LifeHackToolbox",
+    title: "Resume Builder (ATS-Friendly): Free PDF & Word Export, No Login | LifeHackToolbox",
     description:
       "Create an ATS-friendly resume with presets by career and experience level. Export to PDF, DOCX, TXT, or Markdown. 100% browser-based and private.",
     url: "https://lifehacktoolbox.com/resume-builder",
@@ -20,8 +21,54 @@ export const metadata: Metadata = {
 };
 
 export default function ResumeBuilderPage() {
+  const webAppJsonLd = buildWebApplicationJsonLd({
+    name: "Resume Builder (ATS-Friendly)",
+    description:
+      "Create an ATS-friendly resume in your browser with templates and exports to PDF and Word.",
+    url: "https://lifehacktoolbox.com/resume-builder",
+    applicationCategory: "BusinessApplication"
+  });
+
+  const faqItems = [
+    {
+      question: "What does ATS-friendly mean for a resume?",
+      answer:
+        "ATS-friendly resumes use clear headings, readable text, and simple structure so Applicant Tracking Systems can parse sections like Experience, Education, and Skills without confusion."
+    },
+    {
+      question: "Does this resume builder require an account?",
+      answer:
+        "No. You can build and export a resume without logging in."
+    },
+    {
+      question: "Is my resume uploaded to a server?",
+      answer:
+        "No. The builder runs in your browser. Your resume content stays on your device and may be stored locally in your browser for convenience."
+    },
+    {
+      question: "Which export format should I use?",
+      answer:
+        "PDF is best for most applications, DOCX is useful when recruiters request an editable file, and plain text or Markdown can help with ATS portals that prefer text-first inputs."
+    },
+    {
+      question: "How do I tailor my resume to a job description?",
+      answer:
+        "Use the ATS helper panel to compare your resume content with a job description and adjust keywords and phrasing to better match the role, without keyword stuffing."
+    }
+  ] as const;
+
+  const faqJsonLd = buildFaqPageJsonLd([...faqItems]);
+
   return (
     <div className="space-y-10">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webAppJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
       <section className="space-y-4 print:hidden">
         <h1 className="text-3xl font-semibold tracking-tight text-slate-900 sm:text-4xl">
           Free Resume Builder (No Login, ATS-Friendly)
@@ -162,6 +209,64 @@ export default function ResumeBuilderPage() {
             </Link>
             . All of them share the same principles: no login, no paywall, and
             a focus on privacy and clarity.
+          </p>
+          <h3 className="text-sm font-semibold text-slate-900">
+            Related tools
+          </h3>
+          <ul className="list-disc space-y-1 pl-5">
+            <li>
+              <Link href="/pdf-signature-editor" className="font-medium text-emerald-700 hover:text-emerald-800">
+                PDF Signature &amp; Form Filler
+              </Link>
+            </li>
+            <li>
+              <Link href="/email-signature-generator" className="font-medium text-emerald-700 hover:text-emerald-800">
+                Email Signature Generator
+              </Link>
+            </li>
+            <li>
+              <Link href="/diff-checker" className="font-medium text-emerald-700 hover:text-emerald-800">
+                Diff Checker
+              </Link>
+            </li>
+            <li>
+              <Link href="/json-linter" className="font-medium text-emerald-700 hover:text-emerald-800">
+                JSON Linter &amp; Formatter
+              </Link>
+            </li>
+          </ul>
+          <h2 className="text-base font-semibold text-slate-900">
+            Resume builder FAQ
+          </h2>
+          <h3 className="text-sm font-semibold text-slate-900">
+            What makes a resume ATS friendly?
+          </h3>
+          <p>
+            ATS systems typically parse simple text structure best. Clear headings, consistent dates, and bullet lists are easier to parse than complex layouts, icons, columns, or heavy graphics. This builder focuses on readable structure first.
+          </p>
+          <h3 className="text-sm font-semibold text-slate-900">
+            Do I need an account to export?
+          </h3>
+          <p>
+            No. You can export your resume without creating an account or signing in.
+          </p>
+          <h3 className="text-sm font-semibold text-slate-900">
+            Where is my resume stored?
+          </h3>
+          <p>
+            Your resume content is stored in this browser using local storage so you can come back and keep editing. Clearing browser data or switching devices can remove drafts, so export backups if you want long-term storage.
+          </p>
+          <h3 className="text-sm font-semibold text-slate-900">
+            Which format should I submit: PDF or DOCX?
+          </h3>
+          <p>
+            PDF is the safest choice for preserving layout and typography. DOCX can be useful when an employer requests an editable file or you want to do final edits in Word. Plain text or Markdown can help when portals prefer text-first inputs.
+          </p>
+          <h3 className="text-sm font-semibold text-slate-900">
+            How should I use keywords without stuffing?
+          </h3>
+          <p>
+            Pull key skills and tools from the job description and ensure they appear naturally in Skills and Experience bullets where they are true. The goal is alignment, not repetition.
           </p>
           <p>
             You can bookmark this ATS-friendly resume builder and return

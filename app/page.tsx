@@ -1161,6 +1161,45 @@ export default function HomePage() {
             homework assignment, or a DIY project. LifeHackToolbox groups tools
             into categories so you can browse quickly and find what you need:
           </p>
+          <h3 className="text-base font-semibold text-slate-900">
+            Math &amp; study tools you can bookmark
+          </h3>
+          <p>
+            If you are here for school, studying, or quick self-checks, start
+            with the{" "}
+            <Link href="/function-grapher" className="font-medium text-emerald-700 hover:text-emerald-800">
+              Function Grapher
+            </Link>
+            ,{" "}
+            <Link href="/matrix-calculator" className="font-medium text-emerald-700 hover:text-emerald-800">
+              Matrix Calculator
+            </Link>
+            ,{" "}
+            <Link href="/probability-simulator" className="font-medium text-emerald-700 hover:text-emerald-800">
+              Probability Simulator
+            </Link>
+            , and{" "}
+            <Link href="/statistics-explorer" className="font-medium text-emerald-700 hover:text-emerald-800">
+              Statistics Explorer
+            </Link>
+            . For reference-style learning, the{" "}
+            <Link href="/unit-circle-calculator" className="font-medium text-emerald-700 hover:text-emerald-800">
+              Unit Circle Calculator
+            </Link>{" "}
+            and{" "}
+            <Link href="/unit-converter" className="font-medium text-emerald-700 hover:text-emerald-800">
+              Universal Unit Converter
+            </Link>{" "}
+            cover a lot of day-to-day needs. For chemistry, the{" "}
+            <Link href="/periodic-table" className="font-medium text-emerald-700 hover:text-emerald-800">
+              Interactive Periodic Table
+            </Link>{" "}
+            and{" "}
+            <Link href="/molecular-weight-calculator" className="font-medium text-emerald-700 hover:text-emerald-800">
+              Molecular Weight (Molar Mass) Calculator
+            </Link>{" "}
+            are built as fast study aids with practical breakdowns and exports.
+          </p>
           <ul className="list-disc space-y-2 pl-5">
             <li>
               <span className="font-semibold">Money &amp; bills:</span> quick
