@@ -51,6 +51,12 @@ export default function SmoothieMacroCalculatorPage() {
             adds everything up so you can see whether your “healthy smoothie” is actually
             closer to a light snack or a full meal.
           </p>
+          <p>
+            The practical reason to look at macros is not to obsess over perfection. It is to
+            remove surprises. If your smoothie is meant to replace breakfast, it should probably
+            have enough protein and calories to carry you for a few hours. If it is meant to be
+            a small afternoon snack, it should not accidentally become a 700-calorie liquid meal.
+          </p>
           <h3 className="text-sm font-semibold text-slate-900">
             High-protein vs. high-carb smoothies
           </h3>
@@ -71,6 +77,31 @@ export default function SmoothieMacroCalculatorPage() {
             you have built.
           </p>
           <h3 className="text-sm font-semibold text-slate-900">
+            The fastest way to improve satiety (fullness)
+          </h3>
+          <p>
+            If you routinely feel hungry soon after drinking a smoothie, the fix is usually not
+            complicated. Increase protein first, then increase fiber/volume, and only then add
+            more fats or sugars. Protein powder, Greek yogurt, or milk can raise protein quickly.
+            Frozen berries, spinach, and chia can add fiber and volume. If you add fat sources like
+            nut butter, do it intentionally because fat is calorie-dense.
+          </p>
+          <h3 className="text-sm font-semibold text-slate-900">
+            Sugar, fiber, and why smoothies can feel “too easy to drink”
+          </h3>
+          <p>
+            Smoothies can be deceptive because they are fast to consume. Fruit brings micronutrients,
+            but it also brings carbohydrates, and blending can make it easier to ingest a larger
+            portion than you would eat whole. Fiber helps, but if most of your carbs come from juice,
+            honey, or sweetened yogurt, the smoothie can behave more like a sweet drink than a meal.
+          </p>
+          <p>
+            A simple rule: if you want a meal-like smoothie, keep juice minimal, use whole fruit
+            and/or oats for carbs, and make protein a required ingredient. If you want a workout
+            smoothie, carbs can be higher, but keep an eye on total calories so it matches your
+            training day.
+          </p>
+          <h3 className="text-sm font-semibold text-slate-900">
             How nut butters, seeds, and yogurt change the macro profile
           </h3>
           <p>
@@ -89,6 +120,27 @@ export default function SmoothieMacroCalculatorPage() {
             it matches your overall calorie and macro targets.
           </p>
           <h3 className="text-sm font-semibold text-slate-900">
+            Common smoothie templates (and what they are good for)
+          </h3>
+          <ul className="list-disc space-y-1 pl-5">
+            <li>
+              <span className="font-medium">Protein-forward breakfast</span>: Greek yogurt + milk +
+              protein powder + berries + optional oats.
+            </li>
+            <li>
+              <span className="font-medium">High-carb training blend</span>: banana + oats + milk +
+              optional honey + a steady protein source.
+            </li>
+            <li>
+              <span className="font-medium">Lower-calorie snack</span>: frozen berries + water/ice +
+              a small scoop of protein + spinach for volume.
+            </li>
+            <li>
+              <span className="font-medium">Higher-fat, slower-digesting</span>: milk + nut butter +
+              chia/flax + modest fruit, keeping total calories intentional.
+            </li>
+          </ul>
+          <h3 className="text-sm font-semibold text-slate-900">
             Use this as a directional tool, not a lab report
           </h3>
           <p>
@@ -105,6 +157,24 @@ export default function SmoothieMacroCalculatorPage() {
             full meal, you can decide whether that lines up with your goals and adjust the
             rest of your day accordingly.
           </p>
+          <h3 className="text-sm font-semibold text-slate-900">
+            How to use this smoothie macro calculator
+          </h3>
+          <ol className="list-decimal space-y-1 pl-5">
+            <li>
+              Start with your base liquid and protein choice (milk, yogurt, protein powder).
+            </li>
+            <li>
+              Add fruit or carbs until calories match your intent (snack vs meal).
+            </li>
+            <li>
+              Add optional extras (oats, nut butter, seeds) only if the macro split still fits.
+            </li>
+            <li>
+              If the numbers look wrong, check real labels and serving sizes. Small differences
+              compound quickly in blended recipes.
+            </li>
+          </ol>
           <p>
             If you are thinking about macros in the context of your paycheck, the{" "}
             <Link
@@ -127,6 +197,10 @@ export default function SmoothieMacroCalculatorPage() {
             None of this is nutrition, medical, or fitness advice. It is a quick way to
             visualize the macros of a smoothie recipe so you can make more informed,
             low-friction decisions about what you drink.
+          </p>
+          <p className="text-xs text-slate-600">
+            Privacy note: this tool runs entirely in your browser and does not send your ingredient
+            choices to a server.
           </p>
         </div>
       </section>
